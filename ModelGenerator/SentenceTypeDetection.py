@@ -33,7 +33,7 @@ def CreateSentenceDetectionModel():
     test_set = [(X_test.iloc[i], y_test.iloc[i]) for i in range(len(X_test))]
 
     classifier = nltk.NaiveBayesClassifier.train(train_set)
-    print("Accouracy = ", nltk.classify.accuracy(classifier, test_set))
+    print("Accuracy = ", nltk.classify.accuracy(classifier, test_set))
 
     save_classifier = open(model_location, "wb")
     pickle.dump(classifier, save_classifier)
