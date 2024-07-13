@@ -109,7 +109,7 @@ class Transliteration:
     def create_encoder_model(self):
         # Define an input sequence and process it.
         encoder_inputs = Input(shape=(None, self.num_encoder_tokens))
-        encoder = LSTM(latent_dim, return_state=True)
+        encoder = LSTM(self.latent_dim, return_state=True)
         encoder_outputs, state_h, state_c = encoder(encoder_inputs)
         # We discard `encoder_outputs` and only keep the states.
         encoder_states = [state_h, state_c]
@@ -119,7 +119,7 @@ class Transliteration:
         # We set up our decoder to return full output sequences,
         # and to return internal states as well. We don't use the
         # return states in the training model, but we will use them in inference.
-        decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
+        decoder_lstm = LSTM(self.latent_dim, return_sequences=True, return_state=True)
         decoder_outputs, _, _ = decoder_lstm(decoder_inputs,
                                              initial_state=encoder_states)
         decoder_dense = Dense(self.num_decoder_tokens, activation='softmax')
@@ -137,19 +137,26 @@ class Transliteration:
         self.decoder_lstm = decoder_lstm
         self.model = model
 
+        print(self.encoder_input_data.shape)
+        print(self.decoder_input_data.shape)
+        print(self.decoder_target_data.shape)
+        self.model.summary()
+
     def fit_model(self):
         self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
         self.model.fit([self.encoder_input_data, self.decoder_input_data], self.decoder_target_data,
                   batch_size=batch_size,
                   epochs=epochs,
                   validation_split=0.2)
-        self.model.save(model_path)
+
+    def save_model(self, model):
+        model.save(model_path)
 
     def create_decoder_model(self):
         encoder_model = Model(self.encoder_inputs, self.encoder_states)
 
-        decoder_state_input_h = Input(shape=(latent_dim,))
-        decoder_state_input_c = Input(shape=(latent_dim,))
+        decoder_state_input_h = Input(shape=(self.latent_dim,))
+        decoder_state_input_c = Input(shape=(self.latent_dim,))
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
         decoder_outputs, state_h, state_c = self.decoder_lstm(
             self.decoder_inputs, initial_state=decoder_states_inputs)
@@ -225,6 +232,6 @@ if __name__ == "__main__":
     tl.generate_tokens()
     tl.generate_sequence_encoder_decoder()
     tl.create_encoder_model()
-    # tl.fit_model()
+    tl.fit_model()
     tl.create_decoder_model()
     tl.decode_sequence("karis")
