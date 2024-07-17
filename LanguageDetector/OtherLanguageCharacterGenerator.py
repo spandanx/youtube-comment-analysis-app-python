@@ -6,7 +6,7 @@ import pickle
 data_path = "C:/Users/spand/Downloads/Compressed/Transliteration Dataset 21 Indic languages/data/"
 output_path = "../data/lang_char/"
 sample_size = 10000
-class OtherLanguageDetector:
+class OtherLanguageCharacterGenerator:
 
     def generate_character_set(self, data_path):
         with open(data_path, 'r', encoding='utf-8') as f:
@@ -34,8 +34,8 @@ if __name__ == "__main__":
     for lang in lang_array:
         lang_data_path = data_path + lang + '/' + lang + '_test.json'
         lang_output_path = output_path + lang + '_char.txt'
-        otherLanguageDetector = OtherLanguageDetector()
-        char_set = otherLanguageDetector.generate_character_set(lang_data_path)
-        otherLanguageDetector.write_to_file(char_set, lang_output_path)
+        otherLanguageCharacterGenerator = OtherLanguageCharacterGenerator()
+        char_set = otherLanguageCharacterGenerator.generate_character_set(lang_data_path)
+        otherLanguageCharacterGenerator.write_to_file(char_set, lang_output_path)
         print(len(char_set))
         print(char_set)
