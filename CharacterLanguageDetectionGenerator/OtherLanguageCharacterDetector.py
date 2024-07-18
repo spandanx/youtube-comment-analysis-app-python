@@ -20,14 +20,14 @@ class OtherLanguageCharacterDetector:
 
     def detect_word_lang(self, word):
         if len(word) == 0:
-            return {"lang": "EMPTY", "confidence": 100}
+            return {"letter_lang": "EMPTY", "meaning_lang": "EMPTY", "confidence": 100.0}
         word_set = set(word)
         for key, value in self.char_maps.items():
             if word[0] in value:
                 union = word_set.union(word_set)
                 parcentage = (len(union)/len(word))*100
-                return {"lang": key, "confidence": parcentage}
-        return {"lang": "NOT_FOUND", "confidence": 100}
+                return {"letter_lang": key, "meaning_lang": key, "confidence": parcentage}
+        return {"letter_lang": "NOT_FOUND", "meaning_lang": "NOT_FOUND", "confidence": 100.0}
 
     def detect_sentence_lang(self, sentence):
         words = sentence.split(' ')

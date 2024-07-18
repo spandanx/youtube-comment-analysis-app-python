@@ -11,7 +11,7 @@ model_path = '../Model/sample_transliterationv2_1.keras'
 encoding_model_path = '../Model/sample_transliterationv2_1_encoding.keras'
 decoding_model_path = '../Model/sample_transliterationv2_1_decoding.keras'
 
-class Transliteration2:
+class Transliteration_en_latin_bn:
 
     def __init__(self, batch_size, epochs, latent_dim, num_samples):
         self.batch_size = batch_size
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     latent_dim = 256
     num_samples = 10000
 
-    tl = Transliteration2(batch_size, epochs, latent_dim, num_samples)
+    tl = Transliteration_en_latin_bn(batch_size, epochs, latent_dim, num_samples)
     # transliteration.read_data()
     tl.vectorize_data()
     tl.generate_tokens()
