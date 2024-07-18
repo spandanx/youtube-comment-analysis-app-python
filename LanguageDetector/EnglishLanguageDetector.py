@@ -1,7 +1,7 @@
 from time import time
 import enchant
 
-from CharacterLanguageDetectionGenerator.OtherLanguageCharacterDetector import OtherLanguageCharacterDetector
+from CharacterLanguageGeneraterDetecter.OtherLanguageCharacterDetector import OtherLanguageCharacterDetector
 
 d = enchant.Dict("en_US")
 # import nltk

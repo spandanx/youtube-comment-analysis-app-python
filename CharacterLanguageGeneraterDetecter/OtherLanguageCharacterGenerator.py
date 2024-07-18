@@ -32,7 +32,7 @@ class OtherLanguageCharacterGenerator:
 if __name__ == "__main__":
     lang_array = ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
     for lang in lang_array:
-        lang_data_path = data_path + lang + '/' + lang + '_test.json'
+        lang_data_path = data_path + lang + '/' + lang + '_train.json'
         lang_output_path = output_path + lang + '_char.txt'
         otherLanguageCharacterGenerator = OtherLanguageCharacterGenerator()
         char_set = otherLanguageCharacterGenerator.generate_character_set(lang_data_path)
