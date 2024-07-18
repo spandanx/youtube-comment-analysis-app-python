@@ -10,7 +10,7 @@ from nltk.corpus import words
 nltk_words = set(words.words())
 text_path = "C:\\Users\\spand\\OneDrive\\Documents\\Sample_english_text.txt"
 
-class EnglishLanguageDetector:
+class LanguageDetectorMain:
     def detect_language_of_text(self, lines):
         # nltk_wordset = set()
         # enchant_wordset = set()
@@ -27,7 +27,6 @@ class EnglishLanguageDetector:
                 }
                 if d.check(word):
                     print("Present - ", word)
-                    # enchant_wordset.add(string)
                     current_word.update({"letter_lang": "english", "meaning_lang": "english", "confidence": 100.0})
                 else:
                     current_word.update(otherLanguageCharacterDetector.detect_word_lang(word))
@@ -51,12 +50,12 @@ if __name__ == "__main__":
     lines = [
         "are more simply constructed from the 7-orthoplex.",
         "are farmers, while an additional 5% receives their livelihood from raising livestock.",
-        "বসন্তের, ভ্রমণ, निर्माली",
+        "বসন্তের ভ্রমণ निर्माली",
         "nirmaali shivaalapurva siddhanto"
     ]
 
-    englishLanguageDetector = EnglishLanguageDetector()
-    lang_list = englishLanguageDetector.detect_language_of_text(lines)
+    languageDetector = LanguageDetectorMain()
+    lang_list = languageDetector.detect_language_of_text(lines)
     t1 = time()
     print(t1 - t)
     for line in lang_list:

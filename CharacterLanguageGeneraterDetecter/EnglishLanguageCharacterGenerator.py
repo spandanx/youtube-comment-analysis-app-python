@@ -15,7 +15,7 @@ class OtherLanguageCharacterGenerator:
         for line in lines[: min(sample_size, len(lines) - 1)]:
             each_line = json.loads(line)
             # print(each_line)
-            native_word = each_line["native word"]
+            native_word = each_line["english word"]
             for char_data in native_word:
                 char_set.add(char_data)
         return char_set
@@ -30,13 +30,14 @@ class OtherLanguageCharacterGenerator:
 
 
 if __name__ == "__main__":
-    lang_array = ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
-    for lang in lang_array:
-        lang_data_path = data_path + lang + '/' + lang + '_train.json'
-        lang_output_path = output_path + lang + '_char.txt'
-        otherLanguageCharacterGenerator = OtherLanguageCharacterGenerator()
-        char_set = otherLanguageCharacterGenerator.generate_character_set(lang_data_path)
-        otherLanguageCharacterGenerator.write_to_file(char_set, lang_output_path)
-        print(len(char_set))
-        print(char_set)
-        # print(type(char_set))
+    char_list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    char_set = set()
+    for c in char_list:
+        char_set.add(c)
+
+    lang_output_path = output_path + 'eng' + '_char.txt'
+    otherLanguageCharacterGenerator = OtherLanguageCharacterGenerator()
+    otherLanguageCharacterGenerator.write_to_file(char_set, lang_output_path)
+    print(len(char_set))
+    print(char_set)
+    # print(type(char_set))

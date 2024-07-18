@@ -13,11 +13,13 @@ decoding_model_path = '../Model/sample_transliterationv2_1_decoding.keras'
 
 class Transliteration_en_latin_bn:
 
-    def __init__(self, batch_size, epochs, latent_dim, num_samples):
+    def __init__(self, batch_size=64, epochs=100, latent_dim=256, num_samples=10000):
         self.batch_size = batch_size
         self.epochs = epochs
         self.latent_dim = latent_dim
         self.num_samples = num_samples
+        self.vectorize_data()
+        self.generate_tokens()
 
     def read_data(self):
         df = pd.read_json(data_path, lines=True)
@@ -32,7 +34,7 @@ class Transliteration_en_latin_bn:
         target_characters.add(' ')
         with open(data_path, 'r', encoding='utf-8') as f:
             lines = f.read().split('\n')
-        for line in lines[: min(num_samples, len(lines) - 1)]:
+        for line in lines[: min(self.num_samples, len(lines) - 1)]:
             each_line = json.loads(line)
             # print(type(line))
             # print(each_line)
@@ -253,6 +255,10 @@ class Transliteration_en_latin_bn:
     def detect_transliteration_from_text(self):
         pass
 
+    def transliterate_to_native(self, word):
+        self.load_encoding_decoding_models(encoding_model_path, decoding_model_path)
+        return self.decode_sequence(word).replace('\n', '')
+
 if __name__ == "__main__":
     batch_size = 64
     epochs = 100
@@ -261,8 +267,8 @@ if __name__ == "__main__":
 
     tl = Transliteration_en_latin_bn(batch_size, epochs, latent_dim, num_samples)
     # transliteration.read_data()
-    tl.vectorize_data()
-    tl.generate_tokens()
+    # tl.vectorize_data()
+    # tl.generate_tokens()
 
     # tl.generate_one_hot_encoder_decoder()
     # tl.create_encoder_model()
@@ -271,6 +277,7 @@ if __name__ == "__main__":
     # tl.save_model(tl.encoder_model, encoding_model_path)
     # tl.save_model(tl.decoder_model, decoding_model_path)
 
-    tl.load_encoding_decoding_models(encoding_model_path, decoding_model_path)
+    # tl.load_encoding_decoding_models(encoding_model_path, decoding_model_path)
     # tl.decode_sequence("karis")
-    tl.decode_sequence("jadukori")
+    # tl.decode_sequence("jadukori")
+    tl.transliterate_to_native("jadukori")
