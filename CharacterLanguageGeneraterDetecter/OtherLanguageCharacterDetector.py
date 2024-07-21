@@ -1,8 +1,6 @@
-import pandas as pd
-import json
 import pickle
 
-from ModelGenerator.TransliterationIndicLatin2Native import Transliteration_en_latin_bn
+from IndicTransliteration.TransliterationIndicLatin2Native import Transliteration_en_latin_bn
 from TransliterationLanguageGeneraterDetecter.TransliterationLanguageDetector import TransliterationLanguageDetector
 
 char_file_path = "../data/lang_char/"

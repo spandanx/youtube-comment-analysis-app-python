@@ -154,7 +154,7 @@ class TransliterationIndicLatin2Native:
         # Define an input sequence and process it.
         encoder_inputs= Input(shape=(self.max_encoder_seq_length[lang], self.num_encoder_tokens[lang]), name='encoder_inputs')
 
-        masking_array = [0 for _ in range(self.max_encoder_seq_length[lang])]
+        masking_array = [0 for _ in range(self.num_encoder_tokens[lang])]
         masking_array[0] = 1
 
         masking = keras.layers.Masking(mask_value= masking_array)
@@ -233,7 +233,7 @@ class TransliterationIndicLatin2Native:
         decoder_states = [state_h, state_c]
         decoder_outputs = self.decoder_dense[lang](decoder_outputs)
         decoder_model = Model(
-            [self.decoder_inputs] + decoder_states_inputs,
+            [self.decoder_inputs[lang]] + decoder_states_inputs,
             [decoder_outputs] + decoder_states)
 
         self.encoder_model[lang] = encoder_model
@@ -329,15 +329,20 @@ if __name__ == "__main__":
     decoding_token_desc_path_base = '../Model/decode_desc/decode_desc_{lang}_latin_to_{lang}_native_v2.keras'
 
     tl = TransliterationIndicLatin2Native(batch_size, epochs, latent_dim, num_samples)
-    langs = ['ben']
-    # for lang in langs:
-    #     input_data_path = input_data_path_base.format(lang=lang)
-    #     encoding_model_path = encoding_model_path_base.format(lang=lang)
-    #     decoding_model_path = decoding_model_path_base.format(lang=lang)
-    #     decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
-    #     tl.train_model(lang, input_data_path, encoding_model_path, decoding_model_path, decoding_token_desc_path)
+    # langs = ['ben']
+    # langs = ['hin']
+    # ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
+    # langs = ["mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
+    langs = ["ben", "guj", "hin", "kan"]
+    for lang in langs:
+        print(lang)
+        input_data_path = input_data_path_base.format(lang=lang)
+        encoding_model_path = encoding_model_path_base.format(lang=lang)
+        decoding_model_path = decoding_model_path_base.format(lang=lang)
+        decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
+        tl.train_model(lang, input_data_path, encoding_model_path, decoding_model_path, decoding_token_desc_path)
     # decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
-    tl.transliterate_to_native("jadukori", "ben")
+    # tl.transliterate_to_native("kabhi", "ben")
 
     # transliteration.read_data()
 
