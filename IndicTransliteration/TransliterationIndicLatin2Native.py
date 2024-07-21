@@ -334,15 +334,15 @@ if __name__ == "__main__":
     # ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
     # langs = ["mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"]
     langs = ["ben", "guj", "hin", "kan"]
-    for lang in langs:
-        print(lang)
-        input_data_path = input_data_path_base.format(lang=lang)
-        encoding_model_path = encoding_model_path_base.format(lang=lang)
-        decoding_model_path = decoding_model_path_base.format(lang=lang)
-        decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
-        tl.train_model(lang, input_data_path, encoding_model_path, decoding_model_path, decoding_token_desc_path)
+    # for lang in langs:
+    #     print(lang)
+    #     input_data_path = input_data_path_base.format(lang=lang)
+    #     encoding_model_path = encoding_model_path_base.format(lang=lang)
+    #     decoding_model_path = decoding_model_path_base.format(lang=lang)
+    #     decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
+    #     tl.train_model(lang, input_data_path, encoding_model_path, decoding_model_path, decoding_token_desc_path)
     # decoding_token_desc_path = decoding_token_desc_path_base.format(lang=lang)
-    # tl.transliterate_to_native("kabhi", "ben")
+    tl.transliterate_to_native("tahole", "ben")
 
     # transliteration.read_data()
 

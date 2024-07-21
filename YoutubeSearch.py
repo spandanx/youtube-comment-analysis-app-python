@@ -1,6 +1,6 @@
 from apiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
-from ModelGenerator import SentenceTypeDetection
+from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 from DataProcessing import TextSummarizer, WrapText
 
 DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"

@@ -26,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from ModelGenerator import SentenceTypeDetection
+from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 
 ys = YoutubeSearch()
 

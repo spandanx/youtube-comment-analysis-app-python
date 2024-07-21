@@ -1,21 +1,22 @@
 import pickle
 
-from IndicTransliteration.TransliterationIndicLatin2Native import Transliteration_en_latin_bn
+# from IndicTransliteration.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
 from TransliterationLanguageGeneraterDetecter.TransliterationLanguageDetector import TransliterationLanguageDetector
 
 char_file_path = "../data/lang_char/"
 
-class OtherLanguageCharacterDetector:
+class LanguageCharacterDetector:
 
     def __init__(self):
         self.char_maps = dict()
         self.langs = ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd", "eng"]
+        self.trans_supported_langs = set(["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"])
         for lang in self.langs:
             lang_output_path = char_file_path + lang + '_char.txt'
             self.load_char_maps(lang, lang_output_path)
 
-    def set_transliteration_object(self, obj):
-        self.e2btrans_object = obj
+    # def set_transliteration_object(self, obj):
+    #     self.trans_object = obj
 
     def load_char_maps(self, lang, char_file_path):
         with open(char_file_path, 'rb') as f:
@@ -33,14 +34,15 @@ class OtherLanguageCharacterDetector:
                 if key == "eng":
                     transliterationLanguageDetector = TransliterationLanguageDetector()
                     res = transliterationLanguageDetector.detect_word_lang(word)
-                    meaning_lang = res["meaning_lang"]
-                    if meaning_lang == "ben":
-                        transed_word = self.e2btrans_object.transliterate_to_native(word)
-                        print(transed_word)
-                        res.update({"transliterated_word": transed_word})
-                        return res
+                    # meaning_lang = res["meaning_lang"]
+                    # if meaning_lang == "ben":
+                    #     transed_word = self.trans_object.transliterate_to_native(word, meaning_lang)
+                    #     print(transed_word)
+                    #     res.update({"transliterated_word": transed_word})
+                    return res
                 return {"letter_lang": key, "confidence": percentage}
         return {"letter_lang": "NOT_FOUND", "confidence": 100.0}
+
 
     def detect_sentence_lang(self, sentence):
         words = sentence.split(' ')
@@ -55,12 +57,12 @@ class OtherLanguageCharacterDetector:
 
 
 if __name__ == "__main__":
-    otherLanguageCharacterDetector = OtherLanguageCharacterDetector()
-    tl = Transliteration_en_latin_bn()
-    otherLanguageCharacterDetector.set_transliteration_object(tl)
+    languageCharacterDetector = LanguageCharacterDetector()
+    # tl = TransliterationIndicLatin2Native()
+    # languageCharacterDetector.set_transliteration_object(tl)
     # for lang in lang_array:
     #     lang_output_path = char_file_path + lang + '_char.txt'
     #     otherLanguageCharacterDetector.load_char_maps(lang, lang_output_path)
-    print(otherLanguageCharacterDetector.char_maps)
+    print(languageCharacterDetector.char_maps)
     word = "siddhanto বসন্তের ভ্রমণ निर्माली there"
-    print(otherLanguageCharacterDetector.detect_sentence_lang(word))
+    print(languageCharacterDetector.detect_sentence_lang(word))

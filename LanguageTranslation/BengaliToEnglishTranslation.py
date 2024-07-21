@@ -1,11 +1,25 @@
 from googletrans import Translator
 
-translator = Translator()
+class IndicToEngTranslator:
 
-# res = translator.translate("khub sundor hoy বসন্তের ভ্রমণ", "en")
-res = translator.translate("निर्माली বসন্তের ভ্রমণ ଦିବ୍ୟମୋହ", "en")
-print(res)
+    def __init__(self):
+        self.translator = Translator()
 
-# res = translator.detect("sundor")
+    def translate_word(self, word):
+        res = self.translator.translate(word, "en")
+        return res.text
 
-# print(res)
+    def translate_sentence(self, sentence):
+        res = self.translator.translate(sentence, "en")
+        return res.text
+
+
+if __name__ == "__main__":
+    # res = translator.detect("sundor")
+    # print(res)
+    indicToEngTranslator = IndicToEngTranslator()
+    # res = translator.translate("khub sundor hoy বসন্তের ভ্রমণ", "en")
+    # print(indicToEngTranslator.translate_sentence("निर्माली বসন্তের ভ্রমণ ଦିବ୍ୟମୋହ"))
+    res = indicToEngTranslator.translate_sentence("বসন্ত")
+    print(res)
+
