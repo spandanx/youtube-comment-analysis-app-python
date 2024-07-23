@@ -22,7 +22,7 @@ class TransliterationLanguageDetector:
         for key, value in self.word_maps.items():
             if word in value:
                 return {"letter_lang": 'eng', "meaning_lang": key, "confidence": 100.0}
-        return {"letter_lang": "NOT_FOUND", "meaning_lang": "NOT_FOUND", "confidence": 100.0}
+        return {"letter_lang": "eng", "meaning_lang": "NOT_FOUND", "confidence": 100.0}
 
     def detect_sentence_lang(self, sentence):
         words = sentence.split(' ')

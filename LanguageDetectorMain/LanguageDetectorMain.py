@@ -33,6 +33,9 @@ class LanguageDetectorMain:
         lang_list = []
         for line in lines:
             print(line)
+            indic_words_native = ""
+            indic_words_eng = ""
+            output_words = ""
             word_list = []
             words = line.split(' ')
             for word in words:
@@ -44,24 +47,55 @@ class LanguageDetectorMain:
                 }
                 if d.check(word):
                     print("Present - ", word)
-                    current_word.update({"letter_lang": "english", "meaning_lang": "english", "confidence": 100.0})
+                    current_word.update({"letter_lang": "eng", "meaning_lang": "eng", "confidence": 100.0})
+                    if (len(indic_words_native) > 0):
+                        output_words += language_translation_object.translate_sentence(indic_words_native) + " "
+                        indic_words_native = ""
+                    if (len(indic_words_eng) > 0):
+                        output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
+                        indic_words_eng = ""
+                    output_words += word + " "
                 else:
                     current_word.update(languageCharacterDetector.detect_word_lang(word))
-                    if 'meaning_lang' in current_word:
-                        current_word = self.transliterate_word(current_word, current_word["word"], transliteration_object)
-                        # current_word = transliteration_object.transliterate_word(current_word, current_word["word"])
-                        if 'transliterated_word' in current_word:
-                            transliterated_word = current_word["transliterated_word"]
-                            translated_word = language_translation_object.translate_word(transliterated_word)
-                            current_word.update({"translated_word": translated_word})
-                    if ('letter_lang' in current_word) and (current_word['letter_lang']!='eng'):
-                        translated_word = language_translation_object.translate_word(current_word['word'])
-                        current_word.update({"translated_word": translated_word})
-
-
+                    if (current_word["letter_lang"] == "eng"):
+                        if (len(indic_words_native) > 0):
+                            output_words += language_translation_object.translate_sentence(indic_words_native) + " "
+                            indic_words_native = ""
+                        indic_words_eng += word + " "
+                    else:
+                        if (len(indic_words_eng) > 0):
+                            output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
+                            indic_words_eng = ""
+                        indic_words_native += word + " "
+                    # indic_words += word + " "
 
                 word_list.append(current_word)
-            lang_list.append(word_list)
+            # print(word_list)
+
+            if (len(indic_words_native) > 0):
+                output_words += language_translation_object.translate_sentence(indic_words_native) + " "
+                # indic_words_native = ""
+            if (len(indic_words_eng) > 0):
+                output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
+                # indic_words_eng = ""
+
+            if (len(output_words) > 0 and output_words[-1] == ' '):
+                output_words = output_words[:-1]
+                    # if 'meaning_lang' in current_word:
+                    #     current_word = self.transliterate_word(current_word, current_word["word"], transliteration_object)
+                    #     # current_word = transliteration_object.transliterate_word(current_word, current_word["word"])
+                    #     if 'transliterated_word' in current_word:
+                    #         transliterated_word = current_word["transliterated_word"]
+                    #         translated_word = language_translation_object.translate_word(transliterated_word)
+                    #         current_word.update({"translated_word": translated_word})
+                    # if ('letter_lang' in current_word) and (current_word['letter_lang']!='eng'):
+                    #     translated_word = language_translation_object.translate_word(current_word['word'])
+                    #     current_word.update({"translated_word": translated_word})
+
+
+
+            # lang_list.append(word_list)
+            lang_list.append(output_words)
         return lang_list
 
         # if string in nltk_words:
@@ -77,8 +111,11 @@ if __name__ == "__main__":
 
     lines = [
         # "are more simply constructed from the 7-orthoplex.",
-        "are farmers, while an additional 5% receives their livelihood from raising livestock.",
-        "বসন্তের ভ্রমণ निर्माली"
+        # "are farmers, while an additional 5% receives their livelihood from raising livestock.",
+        # "বসন্তের ভ্রমণ निर्माली",
+        "khub sundor",
+        "বসন্তের journey khub sundor",
+        "journey was very sundor of বসন্ত"
         # "nirmaali shivaalapurva siddhanto"
     ]
 

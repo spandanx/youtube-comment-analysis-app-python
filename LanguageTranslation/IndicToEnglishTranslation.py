@@ -5,10 +5,6 @@ class IndicToEngTranslator:
     def __init__(self):
         self.translator = Translator()
 
-    def translate_word(self, word):
-        res = self.translator.translate(word, "en")
-        return res.text
-
     def translate_sentence(self, sentence):
         res = self.translator.translate(sentence, "en")
         return res.text
