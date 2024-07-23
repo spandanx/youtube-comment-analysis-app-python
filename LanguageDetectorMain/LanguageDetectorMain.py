@@ -2,8 +2,8 @@ from time import time
 import enchant
 
 from CharacterLanguageGeneraterDetecter.LanguageCharacterDetector import LanguageCharacterDetector
-from IndicTransliteration.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
-from LanguageTranslation.BengaliToEnglishTranslation import IndicToEngTranslator
+from IndicTransliterationStandBy.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
+from LanguageTranslation.IndicToEnglishTranslation import IndicToEngTranslator
 
 d = enchant.Dict("en_US")
 # import nltk
