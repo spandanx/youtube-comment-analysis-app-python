@@ -1,5 +1,8 @@
 from apiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
+
+from DataProcessing.SentenceCleanser import SentenceCleanser
+from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 from DataProcessing import TextSummarizer, WrapText
 
@@ -11,6 +14,10 @@ youtube_object = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                                         developerKey = DEVELOPER_KEY)
 
 class YoutubeSearch:
+
+    def __init__(self):
+        self.language_processing_model = LanguageDetectorMain()
+        self.sentence_cleanser = SentenceCleanser()
     def youtube_get_videos(self, query, max_results):
         search_keyword = youtube_object.search().list(q = query, part = "id, snippet",
                                                    maxResults = max_results).execute()
@@ -50,15 +57,20 @@ class YoutubeSearch:
 
         for item in results:
             comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-            sentence_type = SentenceTypeDetection.sentenceDetectionModel([item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]], classifier)
+            sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+            print(sentence)
+            filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
+            translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
+            sentence_type = SentenceTypeDetection.sentenceDetectionModel([translated_sentence], classifier)
+            item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = translated_sentence
             item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
             if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
-                statements.append(item["snippet"]["topLevelComment"]["snippet"]["textDisplay"])
+                statements.append(translated_sentence)
             elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
-                questions.append(item["snippet"]["topLevelComment"]["snippet"]["textDisplay"])
+                questions.append(translated_sentence)
 
 
-            comments.append(comment)
+            comments.append(translated_sentence)
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
@@ -83,17 +95,23 @@ class YoutubeSearch:
             max_results_replies -= default_size
             response = request.execute()
             reply_list = response['items']
-            reply_text = [reply["snippet"]["textDisplay"] for reply in response['items']]
+
+            # sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+            # print(sentence)
+            # filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
+            # translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
+
+            reply_text = [self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]))) for reply in response['items']]
             sentence_type_list = SentenceTypeDetection.sentenceDetectionModel(reply_text, classifier)
-            for reply, sentence_type in zip(reply_list, sentence_type_list):
+            for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type['type']
                 # sentence = reply["snippet"]["textDisplay"]
                 # sentence_type = SentenceTypeDetection.TestSentenceDetectionModel(reply["snippet"]["textDisplay"])
                 # reply["snippet"]["sentenceType"] = sentence_type
                 if (sentence_type['type'] == 'statement'):
-                    statements.append(reply["snippet"]["textDisplay"])
+                    statements.append(each_reply_text)
                 elif (sentence_type['type'] == 'question'):
-                    questions.append(reply["snippet"]["textDisplay"])
+                    questions.append(each_reply_text)
             replies.extend(reply_list)
             request = service.comments().list_next(request, response)
 

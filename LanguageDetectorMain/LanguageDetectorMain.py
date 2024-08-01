@@ -17,6 +17,9 @@ class LanguageDetectorMain:
     def __init__(self):
         self.trans_supported_langs = set(
             ["ben", "guj", "hin", "kan", "mal", "mar", "nep", "pan", "ori", "san", "tam", "tel", "urd"])
+        self.language_character_detector = LanguageCharacterDetector()
+        self.transliteration_object = TransliterationIndicLatin2Native()
+        self.language_translation_object = IndicToEngTranslator()
 
     def transliterate_word(self, word_desc_map, word, trans_object):
         meaning_lang = word_desc_map["meaning_lang"]
@@ -27,76 +30,76 @@ class LanguageDetectorMain:
         return word_desc_map
 
 
-    def detect_language_of_text(self, lines, languageCharacterDetector, transliteration_object, language_translation_object):
+    def detect_language_of_text(self, line):
         # nltk_wordset = set()
         # enchant_wordset = set()
-        lang_list = []
-        for line in lines:
-            print(line)
-            indic_words_native = ""
-            indic_words_eng = ""
-            output_words = ""
-            word_list = []
-            words = line.split(' ')
-            for word in words:
-                print(word)
-                if len(word)==0:
-                    continue
-                current_word = {
-                    "word": word
-                }
-                if d.check(word):
-                    print("Present - ", word)
-                    current_word.update({"letter_lang": "eng", "meaning_lang": "eng", "confidence": 100.0})
+        # lang_list = []
+        # for line in lines:
+        print(line)
+        indic_words_native = ""
+        indic_words_eng = ""
+        output_words = ""
+        word_list = []
+        words = line.split(' ')
+        for word in words:
+            # print(word)
+            if len(word)==0:
+                continue
+            current_word = {
+                "word": word
+            }
+            if d.check(word):
+                # print("Present - ", word)
+                current_word.update({"letter_lang": "eng", "meaning_lang": "eng", "confidence": 100.0})
+                if (len(indic_words_native) > 0):
+                    output_words += self.language_translation_object.translate_sentence(indic_words_native) + " "
+                    indic_words_native = ""
+                if (len(indic_words_eng) > 0):
+                    output_words += self.language_translation_object.translate_sentence(indic_words_eng) + " "
+                    indic_words_eng = ""
+                output_words += word + " "
+            else:
+                current_word.update(self.language_character_detector.detect_word_lang(word))
+                if (current_word["letter_lang"] == "eng"):
                     if (len(indic_words_native) > 0):
-                        output_words += language_translation_object.translate_sentence(indic_words_native) + " "
+                        output_words += self.language_translation_object.translate_sentence(indic_words_native) + " "
                         indic_words_native = ""
-                    if (len(indic_words_eng) > 0):
-                        output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
-                        indic_words_eng = ""
-                    output_words += word + " "
+                    indic_words_eng += word + " "
                 else:
-                    current_word.update(languageCharacterDetector.detect_word_lang(word))
-                    if (current_word["letter_lang"] == "eng"):
-                        if (len(indic_words_native) > 0):
-                            output_words += language_translation_object.translate_sentence(indic_words_native) + " "
-                            indic_words_native = ""
-                        indic_words_eng += word + " "
-                    else:
-                        if (len(indic_words_eng) > 0):
-                            output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
-                            indic_words_eng = ""
-                        indic_words_native += word + " "
-                    # indic_words += word + " "
+                    if (len(indic_words_eng) > 0):
+                        output_words += self.language_translation_object.translate_sentence(indic_words_eng) + " "
+                        indic_words_eng = ""
+                    indic_words_native += word + " "
+                # indic_words += word + " "
 
-                word_list.append(current_word)
-            # print(word_list)
+            word_list.append(current_word)
+        # print(word_list)
 
-            if (len(indic_words_native) > 0):
-                output_words += language_translation_object.translate_sentence(indic_words_native) + " "
-                # indic_words_native = ""
-            if (len(indic_words_eng) > 0):
-                output_words += language_translation_object.translate_sentence(indic_words_eng) + " "
-                # indic_words_eng = ""
+        if (len(indic_words_native) > 0):
+            output_words += self.language_translation_object.translate_sentence(indic_words_native) + " "
+            # indic_words_native = ""
+        if (len(indic_words_eng) > 0):
+            output_words += self.language_translation_object.translate_sentence(indic_words_eng) + " "
+            # indic_words_eng = ""
 
-            if (len(output_words) > 0 and output_words[-1] == ' '):
-                output_words = output_words[:-1]
-                    # if 'meaning_lang' in current_word:
-                    #     current_word = self.transliterate_word(current_word, current_word["word"], transliteration_object)
-                    #     # current_word = transliteration_object.transliterate_word(current_word, current_word["word"])
-                    #     if 'transliterated_word' in current_word:
-                    #         transliterated_word = current_word["transliterated_word"]
-                    #         translated_word = language_translation_object.translate_word(transliterated_word)
-                    #         current_word.update({"translated_word": translated_word})
-                    # if ('letter_lang' in current_word) and (current_word['letter_lang']!='eng'):
-                    #     translated_word = language_translation_object.translate_word(current_word['word'])
-                    #     current_word.update({"translated_word": translated_word})
+        if (len(output_words) > 0 and output_words[-1] == ' '):
+            output_words = output_words[:-1]
+                # if 'meaning_lang' in current_word:
+                #     current_word = self.transliterate_word(current_word, current_word["word"], transliteration_object)
+                #     # current_word = transliteration_object.transliterate_word(current_word, current_word["word"])
+                #     if 'transliterated_word' in current_word:
+                #         transliterated_word = current_word["transliterated_word"]
+                #         translated_word = language_translation_object.translate_word(transliterated_word)
+                #         current_word.update({"translated_word": translated_word})
+                # if ('letter_lang' in current_word) and (current_word['letter_lang']!='eng'):
+                #     translated_word = language_translation_object.translate_word(current_word['word'])
+                #     current_word.update({"translated_word": translated_word})
 
 
-
-            # lang_list.append(word_list)
-            lang_list.append(output_words)
-        return lang_list
+        return output_words
+        # lang_list.append(word_list)
+        # lang_list.append(output_words)
+        # return lang_list
 
         # if string in nltk_words:
         #     nltk_wordset.add(string)
@@ -124,11 +127,13 @@ if __name__ == "__main__":
     # lcd = LanguageCharacterDetector()
     tl = TransliterationIndicLatin2Native()
     indicToEngTranslator = IndicToEngTranslator()
-    lang_list = languageDetector.detect_language_of_text(lines, languageCharacterDetector, tl, indicToEngTranslator)
+    for line in lines:
+        lang_list = languageDetector.detect_language_of_text(line)
+        print(lang_list)
     t1 = time()
     print(t1 - t)
-    for line in lang_list:
-        print(line)
+    # for line in lang_list:
+    #     print(line)
 # for wd in enchant_wordset:
 #     if wd not in nltk_wordset:
 #         print(wd)

@@ -1,6 +1,6 @@
 import pickle
 
-char_file_path = "../data/transliteration_words/"
+char_file_path = "./data/transliteration_words/"
 
 class TransliterationLanguageDetector:
 
