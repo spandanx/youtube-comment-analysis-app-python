@@ -106,7 +106,7 @@ if __name__ == "__main__":
     #         print(key + ":", "\n", "\t", val)
     # print(dir(wordnet))
     # sentence = 'consulting'
-    sentence = "While consulting, ; : I sometimes tell people about the consulting business. ? !"
+    sentence = "While consulting, ; : I sometimes tell people about the consulting business. ? ! 🤣🤣🤣, 👍,  😍 ... ...."
     # sentence = "What would this be?"
     res = lemmatizer.lemmatize(sentence)
     for w in res:

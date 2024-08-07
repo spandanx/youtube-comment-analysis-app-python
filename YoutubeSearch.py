@@ -56,21 +56,22 @@ class YoutubeSearch:
             return comments
 
         for item in results:
-            comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+            # comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             print(sentence)
             filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
             translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
-            sentence_type = SentenceTypeDetection.sentenceDetectionModel([translated_sentence], classifier)
-            item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = translated_sentence
+            cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
+            sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
+            item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
             item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
             if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
-                statements.append(translated_sentence)
+                statements.append(cleaned_sentence)
             elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
-                questions.append(translated_sentence)
+                questions.append(cleaned_sentence)
 
 
-            comments.append(translated_sentence)
+            comments.append(cleaned_sentence)
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
@@ -96,12 +97,12 @@ class YoutubeSearch:
             response = request.execute()
             reply_list = response['items']
 
-            # sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-            # print(sentence)
             # filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
             # translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
+            # cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
+            # sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
 
-            reply_text = [self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]))) for reply in response['items']]
+            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
             sentence_type_list = SentenceTypeDetection.sentenceDetectionModel(reply_text, classifier)
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type['type']
