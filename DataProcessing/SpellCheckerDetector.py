@@ -48,6 +48,9 @@ class CustomSpellCheckerDetector:
                 return possible_lang
         return [{"corrected": word, "lang": "NOT_FOUND", "original": word, "known": False}]
 
+    def detect_word_array(self, word_array):
+        pass
+
 
 if __name__ == "__main__":
     lang_array = ["ben"]

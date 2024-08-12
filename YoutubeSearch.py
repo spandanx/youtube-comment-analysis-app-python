@@ -18,6 +18,8 @@ class YoutubeSearch:
     def __init__(self):
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
+        self.text_summarizer = TextSummarizer.TextSummarizer()
+
     def youtube_get_videos(self, query, max_results):
         search_keyword = youtube_object.search().list(q = query, part = "id, snippet",
                                                    maxResults = max_results).execute()
@@ -60,24 +62,26 @@ class YoutubeSearch:
             sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             print(sentence)
             filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
-            translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
-            cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
-            sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
-            item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
-            item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
-            if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
-                statements.append(cleaned_sentence)
-            elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
-                questions.append(cleaned_sentence)
+            if (len(filtered_sentence.split(' '))>1):
+                translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
+                cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
+                sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
+                item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
+                item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
+                if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
+                    statements.append(cleaned_sentence)
+                elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
+                    questions.append(cleaned_sentence)
 
+                comments.append(cleaned_sentence)
 
-            comments.append(cleaned_sentence)
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
                 replies['comments'] = self.get_comment_replies(youtube_object, item['id'], statements, questions, classifier, max_results_replies)
 
         print("Comments:\n", "\n".join(comments), "\n")
+        print("Questions:\n", "\n".join(questions), "\n")
         return comments
 
     '''
@@ -101,8 +105,10 @@ class YoutubeSearch:
             # translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
             # cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
             # sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
-
-            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
+            # len(filtered_sentence.split(' ')) > 1
+            filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']])
+            # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
+            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text(reply)) for reply in filtered_texts]
             sentence_type_list = SentenceTypeDetection.sentenceDetectionModel(reply_text, classifier)
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type['type']
@@ -141,14 +147,12 @@ class YoutubeSearch:
                                            classifier=classifier, max_results_replies=max_results_replies)
 
         wrapped_text = WrapText.wrapText(statements)
-        ts = TextSummarizer.TextSummarizer()
-        summary = ts.summarizeText(wrapped_text)
+        # ts = TextSummarizer.TextSummarizer()
+        summary = self.text_summarizer.summarizeText(wrapped_text)
         result = {}
         result["summary"] = summary[0]["summary_text"]
-        result["questions"] = questions
-        # print(summary)
-        # print(statements)
-        # print(questions)
+        answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in questions]
+        result["questions"] = answered_questions
         return result
 
 
