@@ -151,7 +151,9 @@ class YoutubeSearch:
         summary = self.text_summarizer.summarizeText(wrapped_text)
         result = {}
         result["summary"] = summary[0]["summary_text"]
-        answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in questions]
+        print("QUEStions:")
+        print(questions)
+        answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in filter(lambda ques: len(ques) > 0, questions)]
         result["questions"] = answered_questions
         return result
 
