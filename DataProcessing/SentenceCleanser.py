@@ -6,8 +6,8 @@ class SentenceCleanser:
         text = text.replace("<br>", " ")
         text = re.sub('<a.*</a>', ' ', text)
         text = text.replace("</a>", " ")
-        text = re.sub('https?://\S+', '', text)
-        text = re.sub('@@\S+', '', text)
+        text = re.sub('https?://\S+', '', text) # remove links
+        text = re.sub('@@\S+', '', text) #remove mentions
         text = re.sub(' +', ' ', text)
         return text
 
