@@ -92,6 +92,25 @@ class SentenceTypeDetectionManual:
         questions = list(df_questions["statement"])
         return questions
 
+    def get_questions_answers(self):
+        # df_raw = pd.read_csv('../data/Sentence Types - Question, Command and Statement.csv')
+        df_raw = pd.read_csv('../data/Sentence Types - Question, Command and Statement - modified.csv')
+        df = pd.DataFrame()
+        df["statement"] = df_raw["statement"]
+        df["type"] = df_raw["type"]
+        df_questions = df[(df['type'] == "question") | (df['type'] == "statement")]
+        return df_questions
+
+    def truncate_sentence_pos(self, sentence, min_length):
+        last_sentence = self.get_last_sentence(sentence)
+        truncated_sentence_pos = self.pos_word(last_sentence)
+        end_tag = "OTHER"
+        if last_sentence[-1] == ".":
+            end_tag = "FULLSTOP"
+        elif last_sentence[-1] == "?":
+            end_tag = "QUESTION"
+        pos_tag = truncated_sentence_pos[:min_length] + [end_tag]
+        return pos_tag
 
 
 if __name__ == "__main__":
@@ -107,21 +126,24 @@ if __name__ == "__main__":
     pos_examples = dict()
 
     # phrase = "In 2012, the modern use of electronic educational technology (also called e-learning) had grown at 14 times the rate of traditional learning. What did surveys show in 2008?"
-    # print(st_detection.get_last_sentence(phrase))
+    phrase = "you arrive in  Bi..."
+    print(st_detection.truncate_sentence_pos(phrase, 3))
     # phrase = " What did surveys show in 2008"
     # print(st_detection.clean_spaces(phrase))
 
     for sentence in qs[:150]:
         if len(sentence) != 0:
-            end_tag = "OTHER"
-            if sentence[-1] == ".":
-                end_tag = "FULLSTOP"
-            elif sentence[-1] == "?":
-                end_tag = "QUESTION"
+            # end_tag = "OTHER"
+            # if sentence[-1] == ".":
+            #     end_tag = "FULLSTOP"
+            # elif sentence[-1] == "?":
+            #     end_tag = "QUESTION"
 
             pos_tag = st_detection.pos_word(st_detection.get_last_sentence(sentence))
-            pos_2_tag = ' '.join(pos_tag[:2] + [end_tag])
-            pos_3_tag = ' '.join(pos_tag[:3] + [end_tag])
+            # pos_2_tag = ' '.join(pos_tag[:2] + [end_tag])
+            # pos_3_tag = ' '.join(pos_tag[:3] + [end_tag])
+            pos_2_tag = ' '.join(st_detection.truncate_sentence_pos(sentence, 2))
+            pos_3_tag = ' '.join(st_detection.truncate_sentence_pos(sentence, 3))
             if pos_2_tag not in freq_2:
                 freq_2[pos_2_tag] = 1
             if pos_3_tag not in freq_3:
