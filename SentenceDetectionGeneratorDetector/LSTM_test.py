@@ -16,11 +16,16 @@ from sklearn.preprocessing import LabelEncoder
 model_location_100 = '../Model/lstm_model_209134_epoch_50.h5'
 model_location_10 = '../Model/lstm_model_1000_epoch_10.h5'
 model_location_10_keras = '../Model/lstm_model_1000_epoch_10_keras.h5'
+model_location_full_keras = '../Model/lstm_model_209134_epoch_50_2.h5'
+model_location_full_keras_dropout2 = '../Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
 
 class LSTM_load:
 
     def __init__(self):
         self.s_detection_manual = SentenceTypeDetectionManual()
+        self.lstm_model = self.load_model(model_location_full_keras_dropout2)
+        self.target_label_map = {"statement": 0, "question": 1}
+        self.target_label_reverse_map = {0: "statement", 1: "question"}
 
     def get_pos_tags(self, dataset, dataset_size):
 
@@ -39,8 +44,6 @@ class LSTM_load:
         pos_tag_list = sorted(list(pos_tags))
         self.pos_tag_map = {(pos_tag_list[i]): (i) for i in range(len(pos_tag_list))}
         self.pos_tag_reverse_map = {(i): (pos_tag_list[i]) for i in range(len(pos_tag_list))}
-        self.target_label_map = {"statement": 0, "question": 1}
-        self.target_label_reverse_map = {0: "statement", 1: "question"}
 
         pos_train_list = []
         target_list = []
@@ -112,9 +115,10 @@ class LSTM_load:
         truncated_pos_sentence = self.s_detection_manual.truncate_sentence_pos(sentence, min_len)
         return [pos_tag_map[ps] for ps in truncated_pos_sentence]
 
-    def predict_sentence(self, sentence_vector, model):
-        sentence_type = model.predict(x=sentence_vector)
-        return sentence_type
+    def predict_sentence(self, sentence_vector):
+        sentence_type_array = self.lstm_model.predict(x=sentence_vector)
+        sentence_type_response = [self.target_label_reverse_map[(0 if score<=0.5 else 1)] for score in sentence_type_array]
+        return sentence_type_response
 
 
 if __name__ == "__main__":
@@ -135,10 +139,12 @@ if __name__ == "__main__":
     # X_dataset, y_dataset = lstm_rough.convert_dataset_to_label_num_X_Y(pos_tags=pos_tags, dataset=dataset, min_len=min_len, dataset_size=dataset_size)
     # print("GOT X_dataset")
     # y_dataset = lstm_rough.convert_dataset_to_label_num_Y(dataset=dataset, dataset_size=dataset_size)
-    print("GOT X, y dataset")
     # model = lstm_rough.train_LSTM_model(X_dataset, y_dataset, min_len+1, epochs)
-    sentence = "What year did Dell announce its plans to buy its building?"
-    model = lstm_load.load_model(model_location_10_keras)
+    # sentence = "What year did Dell announce its plans to buy its building?"
+    sentence = "Apple tastes sweet"
+    model = lstm_load.load_model(model_location_full_keras_dropout2)
     sentence_vector = lstm_load.convert_sentence(sentence, 3, pos_tags)
-    sentence_type = lstm_load.predict_sentence(sentence_vector, model)
+    sentence_type = lstm_load.predict_sentence([sentence_vector])
     print(sentence_type)
+    # self.target_label_map = {"statement": 0, "question": 1}
+    # [[0.9999994]]

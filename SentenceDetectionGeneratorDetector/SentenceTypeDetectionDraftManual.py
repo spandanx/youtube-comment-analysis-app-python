@@ -109,7 +109,8 @@ class SentenceTypeDetectionManual:
             end_tag = "FULLSTOP"
         elif last_sentence[-1] == "?":
             end_tag = "QUESTION"
-        pos_tag = truncated_sentence_pos[:min_length] + [end_tag]
+        # pos_tag = truncated_sentence_pos[:min_length] + [end_tag]
+        pos_tag = truncated_sentence_pos[:min_length]
         return pos_tag
 
 
