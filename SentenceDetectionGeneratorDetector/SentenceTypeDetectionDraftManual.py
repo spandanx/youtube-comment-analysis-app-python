@@ -104,11 +104,11 @@ class SentenceTypeDetectionManual:
     def truncate_sentence_pos(self, sentence, min_length):
         last_sentence = self.get_last_sentence(sentence)
         truncated_sentence_pos = self.pos_word(last_sentence)
-        end_tag = "OTHER"
-        if last_sentence[-1] == ".":
-            end_tag = "FULLSTOP"
-        elif last_sentence[-1] == "?":
-            end_tag = "QUESTION"
+        # end_tag = "OTHER"
+        # if last_sentence[-1] == ".":
+        #     end_tag = "FULLSTOP"
+        # elif last_sentence[-1] == "?":
+        #     end_tag = "QUESTION"
         # pos_tag = truncated_sentence_pos[:min_length] + [end_tag]
         pos_tag = truncated_sentence_pos[:min_length]
         return pos_tag

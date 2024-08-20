@@ -17,7 +17,10 @@ model_location_100 = '../Model/lstm_model_209134_epoch_50.h5'
 model_location_10 = '../Model/lstm_model_1000_epoch_10.h5'
 model_location_10_keras = '../Model/lstm_model_1000_epoch_10_keras.h5'
 model_location_full_keras = '../Model/lstm_model_209134_epoch_50_2.h5'
-model_location_full_keras_dropout2 = '../Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
+if __name__ == "__main__":
+    model_location_full_keras_dropout2 = '../Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
+else:
+    model_location_full_keras_dropout2 = './Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
 
 class LSTM_load:
 
@@ -26,6 +29,8 @@ class LSTM_load:
         self.lstm_model = self.load_model(model_location_full_keras_dropout2)
         self.target_label_map = {"statement": 0, "question": 1}
         self.target_label_reverse_map = {0: "statement", 1: "question"}
+        self.pos_tags = set(['CD', 'DT', 'MD', 'QUESTION', 'NN', '(', 'UH', ')', "''", '``', 'PUNC', 'POS', 'TO', '#', 'V', 'PRP', 'SYM',
+     'OTHER', 'IN', 'JJ', 'FULLSTOP', 'SENDPUNC', 'RP', '$', 'EX', 'CC', 'FW', 'RB', 'LS', 'PDT', 'W'])
 
     def get_pos_tags(self, dataset, dataset_size):
 
@@ -108,8 +113,8 @@ class LSTM_load:
         loaded_model = load_model(model_location)
         return loaded_model
 
-    def convert_sentence(self, sentence, min_len, pos_tag_set):
-        pos_tag_list = sorted(list(pos_tag_set))
+    def convert_sentence(self, sentence, min_len):
+        pos_tag_list = sorted(list(self.pos_tags))
         pos_tag_map = {(pos_tag_list[i]): (i) for i in range(len(pos_tag_list))}
         print(pos_tag_map)
         truncated_pos_sentence = self.s_detection_manual.truncate_sentence_pos(sentence, min_len)
@@ -119,6 +124,17 @@ class LSTM_load:
         sentence_type_array = self.lstm_model.predict(x=sentence_vector)
         sentence_type_response = [self.target_label_reverse_map[(0 if score<=0.5 else 1)] for score in sentence_type_array]
         return sentence_type_response
+
+    def predict_sentence_array(self, sentenceArray):
+        result = []
+        sentence_vector_array = [self.convert_sentence(sentence, 3) for sentence in sentenceArray]
+        sentence_type_array = self.predict_sentence(sentence_vector_array)
+        for sentence, sentence_type in zip(sentenceArray, sentence_type_array):
+            result.append({
+                "text": sentence,
+                "type": sentence_type
+            })
+        return result
 
 
 if __name__ == "__main__":
@@ -130,10 +146,10 @@ if __name__ == "__main__":
     # dataset = lstm_rough.s_detection_manual.get_questions_answers()
     #209134
     # pos_tags = lstm_rough.get_pos_tags(dataset, dataset_size)
-    pos_tags = set(['CD', 'DT', 'MD', 'QUESTION', 'NN', '(', 'UH', ')', "''", '``', 'PUNC', 'POS', 'TO', '#', 'V', 'PRP', 'SYM',
-     'OTHER', 'IN', 'JJ', 'FULLSTOP', 'SENDPUNC', 'RP', '$', 'EX', 'CC', 'FW', 'RB', 'LS', 'PDT', 'W'])
-    print(pos_tags)
-    print("POS TAGS Generated")
+    # pos_tags = set(['CD', 'DT', 'MD', 'QUESTION', 'NN', '(', 'UH', ')', "''", '``', 'PUNC', 'POS', 'TO', '#', 'V', 'PRP', 'SYM',
+    #  'OTHER', 'IN', 'JJ', 'FULLSTOP', 'SENDPUNC', 'RP', '$', 'EX', 'CC', 'FW', 'RB', 'LS', 'PDT', 'W'])
+    # print(pos_tags)
+    # print("POS TAGS Generated")
     # dataset = pd.DataFrame([[" you arrive in  Bi...", "statement"], ["i'll give you thi...", "statement"]], columns=['statement', 'type'])
 
     # X_dataset, y_dataset = lstm_rough.convert_dataset_to_label_num_X_Y(pos_tags=pos_tags, dataset=dataset, min_len=min_len, dataset_size=dataset_size)
@@ -142,9 +158,9 @@ if __name__ == "__main__":
     # model = lstm_rough.train_LSTM_model(X_dataset, y_dataset, min_len+1, epochs)
     # sentence = "What year did Dell announce its plans to buy its building?"
     sentence = "Apple tastes sweet"
-    model = lstm_load.load_model(model_location_full_keras_dropout2)
-    sentence_vector = lstm_load.convert_sentence(sentence, 3, pos_tags)
-    sentence_type = lstm_load.predict_sentence([sentence_vector])
+    # model = lstm_load.load_model(model_location_full_keras_dropout2)
+    # sentence_vector = lstm_load.convert_sentence(sentence, 3)
+    sentence_type = lstm_load.predict_sentence_array([sentence])
     print(sentence_type)
     # self.target_label_map = {"statement": 0, "question": 1}
     # [[0.9999994]]

@@ -5,6 +5,7 @@ from DataProcessing.SentenceCleanser import SentenceCleanser
 from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 from DataProcessing import TextSummarizer, WrapText
+from SentenceDetectionGeneratorDetector.LSTM_test import LSTM_load
 
 DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -19,6 +20,7 @@ class YoutubeSearch:
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
         self.text_summarizer = TextSummarizer.TextSummarizer()
+        self.lstm_load = LSTM_load()
 
     def youtube_get_videos(self, query, max_results):
         search_keyword = youtube_object.search().list(q = query, part = "id, snippet",
@@ -65,7 +67,7 @@ class YoutubeSearch:
             if (len(filtered_sentence.split(' '))>1):
                 translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
                 cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
-                sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
+                sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])
                 item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
                 item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
                 if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
@@ -109,7 +111,7 @@ class YoutubeSearch:
             filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']])
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
             reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text(reply)) for reply in filtered_texts]
-            sentence_type_list = SentenceTypeDetection.sentenceDetectionModel(reply_text, classifier)
+            sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type['type']
                 # sentence = reply["snippet"]["textDisplay"]
