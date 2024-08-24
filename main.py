@@ -1,10 +1,11 @@
 from typing import List
 from typing import Union
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
 from pydantic import BaseModel
 from YoutubeSearch import YoutubeSearch
 from DataProcessing.TextSummarizer import TextSummarizer
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 origins = [
     "http://localhost:3000"
@@ -44,4 +45,25 @@ async def get_video(searchText: str, max_results: int | None = 10):
 
 @app.post("/summarize-text/")
 async def get_sentence_type(videoIds: VideoIds):
-    return ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
+    try:
+        return ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
+    except Exception as e:
+        print('Something went wrong')
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error has occurred -  {e}'
+        )
+
+@app.exception_handler(Exception)
+async def validation_exception_handler(request: Request, exc: Exception):
+    # Change here to Logger
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": (
+                f"Failed method {request.method} at URL {request.url}."
+                f" Exception message is {exc!r}."
+            )
+        },
+    )
