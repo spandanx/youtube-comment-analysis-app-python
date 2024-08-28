@@ -4,7 +4,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from DataProcessing.SentenceCleanser import SentenceCleanser
 from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from SentenceDetectionGeneratorDetector import SentenceTypeDetection
-from DataProcessing import TextSummarizer, WrapText
+from DataProcessing import TextSummarization, WrapText
 from SentenceDetectionGeneratorDetector.LSTM_test import LSTM_load
 
 DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
@@ -19,7 +19,7 @@ class YoutubeSearch:
     def __init__(self):
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
-        self.text_summarizer = TextSummarizer.TextSummarizer()
+        self.text_summarizer = TextSummarization.TextSummarizer()
         self.lstm_load = LSTM_load()
 
     def youtube_get_videos(self, query, max_results):
@@ -188,7 +188,10 @@ if __name__ == "__main__":
     ]
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
     result = ys.summarize_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
+    # result = {'statements': ['Happy durga puja sir', 'Happy Durga Happy Puja Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'Jai Maa Durga', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja']}
     print(result)
+
+
     ########################
     # classifier = SentenceTypeDetection.getClassifier()
     # statements = []
@@ -197,7 +200,7 @@ if __name__ == "__main__":
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
     # print(comments)
     # wrapped_text = WrapText.wrapText(statements)
-    # ts = TextSummarizer.TextSummarizer()
+    # ts = TextSummarization.TextSummarization()
     # summary = ts.summarizeText(wrapped_text)
     # print(summary)
     # print(statements)

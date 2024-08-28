@@ -4,9 +4,9 @@ import pickle
 from TransliterationLanguageGeneraterDetecter.TransliterationLanguageDetector import TransliterationLanguageDetector
 
 if __name__ == "__main__":
-    char_file_path = "./data/lang_char/"
-else:
     char_file_path = "../data/lang_char/"
+else:
+    char_file_path = "./data/lang_char/"
 
 class LanguageCharacterDetector:
 

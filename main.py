@@ -3,7 +3,7 @@ from typing import Union
 from fastapi import FastAPI, Request, HTTPException, status
 from pydantic import BaseModel
 from YoutubeSearch import YoutubeSearch
-from DataProcessing.TextSummarizer import TextSummarizer
+from DataProcessing.TextSummarization import TextSummarizer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 

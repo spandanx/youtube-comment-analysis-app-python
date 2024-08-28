@@ -18,9 +18,9 @@ model_location_10 = '../Model/lstm_model_1000_epoch_10.h5'
 model_location_10_keras = '../Model/lstm_model_1000_epoch_10_keras.h5'
 model_location_full_keras = '../Model/lstm_model_209134_epoch_50_2.h5'
 if __name__ == "__main__":
-    model_location_full_keras_dropout2 = './Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
-else:
     model_location_full_keras_dropout2 = '../Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
+else:
+    model_location_full_keras_dropout2 = './Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
 
 class LSTM_load:
 
