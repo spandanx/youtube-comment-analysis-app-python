@@ -67,15 +67,16 @@ class YoutubeSearch:
             if (len(filtered_sentence.split(' '))>1):
                 translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
                 cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
-                sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])
-                item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
-                item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
-                if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
-                    statements.append(cleaned_sentence)
-                elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
-                    questions.append(cleaned_sentence)
+                if (len(cleaned_sentence)>1):
+                    sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])
+                    item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
+                    item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
+                    if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
+                        statements.append(cleaned_sentence)
+                    elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
+                        questions.append(cleaned_sentence)
 
-                comments.append(cleaned_sentence)
+                    comments.append(cleaned_sentence)
 
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
@@ -145,19 +146,23 @@ class YoutubeSearch:
         statements = []
         questions = []
         for videoId in videoIdArray:
-            comments = self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
+            print("Processed video - ", videoId)
+            self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
                                            classifier=classifier, max_results_replies=max_results_replies)
 
-        wrapped_text = WrapText.wrapText(statements)
-        # ts = TextSummarizer.TextSummarizer()
-        summary = self.text_summarizer.summarizeText(wrapped_text)
+        # wrapped_text = WrapText.wrapText(statements)
+        # summary = self.text_summarizer.summarizeText(wrapped_text)
         result = {}
-        result["summary"] = summary[0]["summary_text"]
-        print("QUEStions:")
-        print(questions)
-        answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in filter(lambda ques: len(ques) > 0, questions)]
-        result["questions"] = answered_questions
-        return result
+        # result["summary"] = summary[0]["summary_text"]
+        # print("QUEStions:")
+        # print(questions)
+        # answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in filter(lambda ques: len(ques) > 0, questions)]
+        # result["questions"] = answered_questions
+        # return result
+        return {"statements": statements, "questions": questions}
+
+    def wrap_text(self, text):
+        return WrapText.wrapText(text)
 
 
 if __name__ == "__main__":
@@ -169,8 +174,20 @@ if __name__ == "__main__":
     #     print("\t", video["videoId"])
     #     print("\t", video["description"])
     ys = YoutubeSearch()
-    videoIdArray = ['viIpUaC6blY']
-    result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
+    # videoIdArray = ['viIpUaC6blY']
+    videoIdArray = [
+        # "x0fhGdEc2_Y",
+        "9HK1ww1HrBU",
+        "W7laFRcwoBI",
+        "_jhUvcjElro",
+        "04UH1iV0CHI",
+        "xyzGci9Qruc",
+        "7ZdY_ZbQsh8",
+        "fjdXERhm6NU",
+        "7tMEcD0O0lg"
+    ]
+    # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
+    result = ys.summarize_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
     print(result)
     ########################
     # classifier = SentenceTypeDetection.getClassifier()

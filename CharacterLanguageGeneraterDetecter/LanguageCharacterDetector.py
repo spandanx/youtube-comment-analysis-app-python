@@ -3,7 +3,10 @@ import pickle
 # from IndicTransliteration.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
 from TransliterationLanguageGeneraterDetecter.TransliterationLanguageDetector import TransliterationLanguageDetector
 
-char_file_path = "./data/lang_char/"
+if __name__ == "__main__":
+    char_file_path = "./data/lang_char/"
+else:
+    char_file_path = "../data/lang_char/"
 
 class LanguageCharacterDetector:
 

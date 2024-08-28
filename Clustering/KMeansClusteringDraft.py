@@ -14,13 +14,13 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-from YoutubeSearch import YoutubeSearch
+
 
 nlp = spacy.load('en_core_web_sm')
 data_path = '../data/wine.csv'
 
 
-class KMeansClusterer:
+class KMeansClustererDraft:
     def get_data(self, data_path):
         df = pd.read_csv(data_path)
         df = df.iloc[:1000]
@@ -70,13 +70,13 @@ class KMeansClusterer:
                 max_score_cluster_size = k
         return max_score_cluster_size
 
-    # def get_varietals(self, df):
-    #     varietals = ' '.join(df.variety.unique().tolist()).lower()
-    #     varietals = re.sub('-', ' ', varietals)
-    #     varietals = varietals.split()
-    #     return varietals
+    def get_varietals(self, df):
+        varietals = ' '.join(df.variety.unique().tolist()).lower()
+        varietals = re.sub('-', ' ', varietals)
+        varietals = varietals.split()
+        return varietals
 
-    def clean_string(self, text):
+    def clean_string(self, text, varietals):
 
         final_string = ""
         # Make lower
@@ -93,7 +93,7 @@ class KMeansClusterer:
         # text = text.split()
         # Remove stop words
         useless_words = nltk.corpus.stopwords.words("english")
-        # useless_words = useless_words + varietals + ['drink', 'wine']
+        useless_words = useless_words + varietals + ['drink', 'wine']
 
         text_filtered = [word for word in text if not word in useless_words]
         # Remove numbers
@@ -103,8 +103,8 @@ class KMeansClusterer:
         return final_string
 
     def clean_data(self, df):
-        # varietals = self.get_varietals(df)
-        df['description_clean'] = df['description'].apply(lambda x: self.clean_string(x))
+        varietals = self.get_varietals(df)
+        df['description_clean'] = df['description'].apply(lambda x: self.clean_string(x, varietals))
         return df
 
     def encode_text(self, vectorizer, df):
@@ -141,24 +141,18 @@ class KMeansClusterer:
         print(df_clusters.head())
         return df
 
-    def combine_cluster(self, df, cluster_col, text_col, cluster_size):
-        res = []
-        for index in range(cluster_size):
-            x = list(df[df[cluster_col]==index][text_col])
-            res.append(x)
-        return res
+
+st = ['Rich deep color of oak and chocolate.',
+            'Light and crisp with a hint of vanilla.',
+            'Hints of citrus and melon.',
+            'Dark raspberry and black cherry flavors.']
+
 
 
 if __name__ == "__main__":
-
-    ys = YoutubeSearch()
-
-
-    cluster_range = 20
-    km = KMeansClusterer()
-    # df = km.get_data(data_path=data_path)
-    data = ['Happy durga puja sir', 'Happy Durga Pujo Shubh Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'I say, grandpa, your drone is fine now', 'Kolkata is most important city in India ', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di ']
-    df = pd.DataFrame(data, columns=['description'])
+    cluster_range = 10
+    km = KMeansClustererDraft()
+    df = km.get_data(data_path=data_path)
     # varietals = km.get_varietals(df)
     vectorizer = TfidfVectorizer()
     df = km.clean_data(df)
@@ -171,24 +165,12 @@ if __name__ == "__main__":
     k = cluster_size
     df = km.cluster_details(X, df, k)
 
-    combined_text = km.combine_cluster(df, 'clusters', 'description', cluster_size)
-    print("Cluster size - ", cluster_size)
-    for txt in combined_text:
-        print("-----------------")
-        print(txt)
-        wrapped_text = ys.wrap_text(txt)
-        summary = ys.text_summarizer.summarizeText(wrapped_text)
-        summary = str(summary).replace(" .", ".")
-        print(summary)
-    # print(combined_text)
     new_docs = ['Rich deep color of oak and chocolate.',
                 'Light and crisp with a hint of vanilla.',
                 'Hints of citrus and melon.',
                 'Dark raspberry and black cherry flavors.']
 
     pred = model.predict(vectorizer.transform(new_docs))
-    # print(pred)
+    print(pred)
 
-#[['Kharagpur Durga Puja Pandal 2024'], ['Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Patna ka', 'Jay eye di '], ['go mom Durga ', 'go mom Durga Jai maa Durga '], ['Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Thanks for watching Add Me on Social Media Instagram'], ['Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day'], ['Dada ami I am saying Shubojit Paul contact a basket ki lures'], ['You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet'], ['I say, grandpa, your drone is fine now'], ['Happy durga puja sir'], ['Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it'], ['Happy Durga Pujo Shubh Panchami'], ['Kolkata is most important city in India '], ['Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.'], ['Jay maa durga '], ['Chorbagan ta top 10 a It would be better to keep it']]
-#[['Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Chorbagan ta top 10 a It would be better to keep it', '', 'Kalyani, West Bengal, Nadia district', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'Jay eye di '], ['Happy durga puja sir', 'Happy Durga Pujo Shubh Panchami', 'Durga Puja video ', 'go mom Durga ', 'Kharagpur Durga Puja Pandal 2024', 'Jay maa durga ', 'go mom Durga Jai maa Durga '], ['Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Kolkata is most important city in India '], ['Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Thanks for watching Add Me on Social Media Instagram'], ['You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet']]
 
