@@ -1,10 +1,13 @@
-
-from DataProcessing.TextSummarization.NLTKSummarizer import NLTKSummarizer
-from DataProcessing.TextSummarization.SumyLSASummarizer import SumyLSARankSummarizer
-from DataProcessing.TextSummarization.SumyLexRankSummarizer import SumyLexRankSummarizer
-from DataProcessing.TextSummarization.SumyLuhnSummarizer import SumyLuhnSummarizer
-from DataProcessing.TextSummarization.SumyTextRankSummarizer import SumyTextRankSummarizer
-from TextSummarizer import TextSummarizer
+from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
+from DataProcessing.TextSummarization.Abstractive.DistilbertTextSummarizer import DistilbertTextSummarizer
+from DataProcessing.TextSummarization.Abstractive.T5BaseSummarizer import T5BaseSummarizer
+from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
+from DataProcessing.TextSummarization.Extractive.BertExtractiveSummarizer import BertExtractiveSummarizer
+from DataProcessing.TextSummarization.Extractive.NLTKSummarizer import NLTKSummarizer
+from DataProcessing.TextSummarization.Extractive.SumyLSASummarizer import SumyLSARankSummarizer
+from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
+from DataProcessing.TextSummarization.Extractive.SumyLuhnSummarizer import SumyLuhnSummarizer
+from DataProcessing.TextSummarization.Extractive.SumyTextRankSummarizer import SumyTextRankSummarizer
 from time import time
 
 if __name__ == "__main__":
@@ -20,14 +23,25 @@ if __name__ == "__main__":
     sumyLSARankSummarizer = SumyLSARankSummarizer()
     sumyLuhnSummarizer = SumyLuhnSummarizer()
     sumyTextRankSummarizer = SumyTextRankSummarizer()
-    ts = TextSummarizer()
+    # ts = TextSummarizer()
+    distilbertTextSummarizer = DistilbertTextSummarizer()
+    bertExtractiveSummarizer = BertExtractiveSummarizer()
+    bartAbstractiveSummarizer = BARTAbstractiveSummarizer()
+    t5BaseSummarizer = T5BaseSummarizer()
+    t5SmallSummarizer = T5SmallSummarizer()
     models = [
-                ["ts", ts],
+                # ["ts", ts],
+                ["bertExtractiveSummarizer", bertExtractiveSummarizer],
                 ["nltkSummarizer", nltkSummarizer],
                 ["sumyLexRankSummarizer", sumyLexRankSummarizer],
                 ["sumyLSARankSummarizer", sumyLSARankSummarizer],
                 ["sumyLuhnSummarizer", sumyLuhnSummarizer],
                 ["sumyTextRankSummarizer", sumyTextRankSummarizer],
+
+                ["bartAbstractiveSummarizer", bartAbstractiveSummarizer],
+                ["distilbertTextSummarizer", distilbertTextSummarizer],
+                ["t5BaseSummarizer", t5BaseSummarizer],
+                ["t5SmallSummarizer", t5SmallSummarizer]
              ]
     summary_map = {}
     for model_name, model in models:

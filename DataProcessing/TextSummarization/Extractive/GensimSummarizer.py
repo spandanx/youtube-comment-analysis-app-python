@@ -12,7 +12,3 @@ doc = nlp(wikicontent)
 summ_per = summarize(wikicontent, ratio=0.01)
 print("Percent summary")
 print(summ_per)
-#
-# summ_words = summarize(wikicontent, word_count = “”)
-# print("Word count summary")
-# print(summ_words)
