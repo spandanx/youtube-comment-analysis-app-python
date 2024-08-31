@@ -1,6 +1,6 @@
 from transformers import pipeline
 
-class QuestionAnswering:
+class DistilbertQuestionAnswering:
     def __init__(self):
         self.question_answerer = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
@@ -9,8 +9,8 @@ class QuestionAnswering:
 
 
 if __name__ == "__main__":
-  questionAnswering = QuestionAnswering()
+  distilbertQuestionAnswering = DistilbertQuestionAnswering()
   question = "Where do I live?"
   context = "My name is Merve and I live in İstanbul."
-  answer = questionAnswering.answer_question(question=question, context=context)
+  answer = distilbertQuestionAnswering.answer_question(question=question, context=context)
   print(answer)

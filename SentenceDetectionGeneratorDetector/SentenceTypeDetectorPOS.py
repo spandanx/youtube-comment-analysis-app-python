@@ -13,16 +13,16 @@ import numpy as np
 import pickle
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-model_location_100 = '../Model/lstm_model_209134_epoch_50.h5'
-model_location_10 = '../Model/lstm_model_1000_epoch_10.h5'
-model_location_10_keras = '../Model/lstm_model_1000_epoch_10_keras.h5'
-model_location_full_keras = '../Model/lstm_model_209134_epoch_50_2.h5'
+# model_location_100 = '../Model/lstm_model_209134_epoch_50.h5'
+# model_location_10 = '../Model/lstm_model_1000_epoch_10.h5'
+# model_location_10_keras = '../Model/lstm_model_1000_epoch_10_keras.h5'
+# model_location_full_keras = '../Model/lstm_model_209134_epoch_50_2.h5'
 if __name__ == "__main__":
     model_location_full_keras_dropout2 = '../Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
 else:
     model_location_full_keras_dropout2 = './Model/lstm_model_209134_epoch_50_dropout_without_end_tag.h5'
 
-class LSTM_load:
+class SentenceTypeDetectorPOS:
 
     def __init__(self):
         self.s_detection_manual = SentenceTypeDetectionManual()
@@ -139,11 +139,11 @@ class LSTM_load:
 
 
 if __name__ == "__main__":
-    lstm_load = LSTM_load()
+    sentenceTypeDetectorPOS = SentenceTypeDetectorPOS()
     min_len = 3
     epochs = 50
     dataset_size = 209134
-    pd.options.display.max_colwidth = 100
+    # pd.options.display.max_colwidth = 100
     # dataset = lstm_rough.s_detection_manual.get_questions_answers()
     #209134
     # pos_tags = lstm_rough.get_pos_tags(dataset, dataset_size)
@@ -157,11 +157,11 @@ if __name__ == "__main__":
     # print("GOT X_dataset")
     # y_dataset = lstm_rough.convert_dataset_to_label_num_Y(dataset=dataset, dataset_size=dataset_size)
     # model = lstm_rough.train_LSTM_model(X_dataset, y_dataset, min_len+1, epochs)
-    # sentence = "What year did Dell announce its plans to buy its building?"
-    sentence = "Apple tastes sweet"
+    sentence = "What year did Dell announce its plans to buy its building?"
+    # sentence = "Apple tastes sweet"
     # model = lstm_load.load_model(model_location_full_keras_dropout2)
     # sentence_vector = lstm_load.convert_sentence(sentence, 3)
-    sentence_type = lstm_load.predict_sentence_array([sentence])
+    sentence_type = sentenceTypeDetectorPOS.predict_sentence_array([sentence])
     print(sentence_type)
     # self.target_label_map = {"statement": 0, "question": 1}
     # [[0.9999994]]

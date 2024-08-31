@@ -127,8 +127,8 @@ if __name__ == "__main__":
     pos_examples = dict()
 
     # phrase = "In 2012, the modern use of electronic educational technology (also called e-learning) had grown at 14 times the rate of traditional learning. What did surveys show in 2008?"
-    phrase = "you arrive in  Bi..."
-    print(st_detection.truncate_sentence_pos(phrase, 3))
+    # phrase = "you arrive in  Bi..."
+    # print(st_detection.truncate_sentence_pos(phrase, 3))
     # phrase = " What did surveys show in 2008"
     # print(st_detection.clean_spaces(phrase))
 

@@ -47,11 +47,11 @@ async def get_video(searchText: str, max_results: int | None = 10):
 async def extract_comments(videoIds: VideoIds):
     try:
         response = ys.extract_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
-        print(videoIds.ids)
-        print("Statements")
-        print(response["statements"])
-        print("Questions")
-        print(response["questions"])
+        # print(videoIds.ids)
+        # print("Statements")
+        # print(response["statements"])
+        # print("Questions")
+        # print(response["questions"])
         # result = {}
         # wrapped_text = ys.wrap_text(response["statements"])
         # summary = ys.text_summarizer.summarizeText(wrapped_text)
@@ -72,11 +72,11 @@ async def extract_comments(videoIds: VideoIds):
 async def get_sentence_type(videoIds: VideoIds):
     try:
         response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
-        print(videoIds.ids)
-        print("Statements")
-        print(response["statements"])
-        print("Questions")
-        print(response["questions"])
+        # print(videoIds.ids)
+        # print("Statements")
+        # print(response["statements"])
+        # print("Questions")
+        # print(response["questions"])
         # result = {}
         # wrapped_text = ys.wrap_text(response["statements"])
         # summary = ys.text_summarizer.summarizeText(wrapped_text)
