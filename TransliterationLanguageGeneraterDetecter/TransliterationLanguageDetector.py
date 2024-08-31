@@ -1,6 +1,11 @@
 import pickle
 
-char_file_path = "./data/transliteration_words/"
+if __name__ == "__main__":
+    char_file_path = "./data/transliteration_words/"
+else:
+    char_file_path = "./data/transliteration_words/"
+
+
 
 class TransliterationLanguageDetector:
 

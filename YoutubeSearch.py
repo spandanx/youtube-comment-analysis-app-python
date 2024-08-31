@@ -4,7 +4,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from DataProcessing.SentenceCleanser import SentenceCleanser
 from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from SentenceDetectionGeneratorDetector import SentenceTypeDetection
-from DataProcessing import TextSummarization, WrapText
+from DataProcessing import WrapText
 from SentenceDetectionGeneratorDetector.LSTM_test import LSTM_load
 
 DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
@@ -19,7 +19,7 @@ class YoutubeSearch:
     def __init__(self):
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
-        self.text_summarizer = TextSummarization.TextSummarizer()
+        # self.text_summarizer = TextSummarization.TextSummarizer()
         self.lstm_load = LSTM_load()
 
     def youtube_get_videos(self, query, max_results):
@@ -65,7 +65,7 @@ class YoutubeSearch:
             print(sentence)
             filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
             if (len(filtered_sentence.split(' '))>1):
-                translated_sentence = self.language_processing_model.detect_language_of_text(filtered_sentence)
+                translated_sentence = self.language_processing_model.convert_language_of_text(filtered_sentence)
                 cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
                 if (len(cleaned_sentence)>1):
                     sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])
@@ -111,7 +111,7 @@ class YoutubeSearch:
             # len(filtered_sentence.split(' ')) > 1
             filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']])
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
-            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text(reply)) for reply in filtered_texts]
+            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
             sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type['type']
@@ -141,7 +141,7 @@ class YoutubeSearch:
         transcript = api.get_transcript(video_id, languages=languages)
         return transcript
 
-    def summarize_youtube_comments(self, videoIdArray, max_results_comments, max_results_replies):
+    def extract_youtube_comments(self, videoIdArray, max_results_comments, max_results_replies):
         classifier = SentenceTypeDetection.getClassifier()
         statements = []
         questions = []
@@ -149,16 +149,6 @@ class YoutubeSearch:
             print("Processed video - ", videoId)
             self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
                                            classifier=classifier, max_results_replies=max_results_replies)
-
-        # wrapped_text = WrapText.wrapText(statements)
-        # summary = self.text_summarizer.summarizeText(wrapped_text)
-        result = {}
-        # result["summary"] = summary[0]["summary_text"]
-        # print("QUEStions:")
-        # print(questions)
-        # answered_questions = [{"question": ques, "answer": self.text_summarizer.answer_question(question=ques, context=wrapped_text)} for ques in filter(lambda ques: len(ques) > 0, questions)]
-        # result["questions"] = answered_questions
-        # return result
         return {"statements": statements, "questions": questions}
 
     def wrap_text(self, text):
@@ -187,7 +177,7 @@ if __name__ == "__main__":
         "7tMEcD0O0lg"
     ]
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
-    result = ys.summarize_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
+    result = ys.extract_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
     # result = {'statements': ['Happy durga puja sir', 'Happy Durga Happy Puja Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'Jai Maa Durga', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja']}
     print(result)
 

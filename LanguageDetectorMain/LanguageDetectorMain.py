@@ -29,13 +29,54 @@ class LanguageDetectorMain:
             word_desc_map.update({"transliterated_word": transed_word})
         return word_desc_map
 
+    def convert_language_of_text(self, line):
+        indic_words_native = ""
+        indic_words_eng = ""
+        output_words = ""
+        word_list = []
+        words = line.split(' ')
+        for word in words:
+            # print(word)
+            if len(word)==0:
+                continue
+            current_word = {
+                "word": word
+            }
+            current_word.update(self.language_character_detector.detect_word_lang(word))
+            if (current_word["letter_lang"] == "eng"):
+                if (len(indic_words_native) > 0):
+                    output_words += self.language_translation_object.translate_sentence(indic_words_native) + " "
+                    indic_words_native = ""
+                # indic_words_eng += word + " "
+                output_words += word + " "
+            else:
+                # if (len(indic_words_eng) > 0):
+                #     output_words += self.language_translation_object.translate_sentence(indic_words_eng) + " "
+                #     indic_words_eng = ""
+                indic_words_native += word + " "
+            # indic_words += word + " "
+
+            word_list.append(current_word)
+        # print(word_list)
+
+        if (len(indic_words_native) > 0):
+            output_words += self.language_translation_object.translate_sentence(indic_words_native) + " "
+            # indic_words_native = ""
+        # if (len(indic_words_eng) > 0):
+        #     output_words += self.language_translation_object.translate_sentence(indic_words_eng) + " "
+            # indic_words_eng = ""
+
+        if (len(output_words) > 0 and output_words[-1] == ' '):
+            output_words = output_words[:-1]
+        output_words_res = self.language_translation_object.translate_sentence(output_words)
+        return output_words_res
 
     def detect_language_of_text(self, line):
         # nltk_wordset = set()
         # enchant_wordset = set()
         # lang_list = []
         # for line in lines:
-        print(line)
+        # print(line)
         indic_words_native = ""
         indic_words_eng = ""
         output_words = ""
@@ -116,9 +157,14 @@ if __name__ == "__main__":
         # "are more simply constructed from the 7-orthoplex.",
         # "are farmers, while an additional 5% receives their livelihood from raising livestock.",
         # "বসন্তের ভ্রমণ निर्माली",
-        "khub sundor",
-        "বসন্তের journey khub sundor",
-        "journey was very sundor of বসন্ত"
+        # "khub sundor",
+        # "বসন্তের journey khub sundor",
+        # "journey was very sundor of বসন্ত"
+
+            "Aap chor Bagan dekha nhi sayad...near mg metro.. one of finest pandal I bet",
+            "Dada, ap north Kolkata ka, another ak big Puja visit kariyega, naw para dada vai sangha (baranagar). Ehaka thim hei &quot;পরিচয়&quot; Ake dekhiye mei geranty deta hu ki apko acha lage ga",
+            "Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day",
+            "Chorbagan ta top 10 a rakhle valo hoto"
         # "nirmaali shivaalapurva siddhanto"
     ]
 
@@ -128,8 +174,15 @@ if __name__ == "__main__":
     tl = TransliterationIndicLatin2Native()
     indicToEngTranslator = IndicToEngTranslator()
     for line in lines:
+        print("Source - ")
+        print(line)
         lang_list = languageDetector.detect_language_of_text(line)
-        print(lang_list)
+        print("\t OLD - ")
+        print("\t", lang_list)
+
+        lang_list = languageDetector.convert_language_of_text(line)
+        print("\t NEW - ")
+        print("\t", lang_list)
     t1 = time()
     print(t1 - t)
     # for line in lang_list:

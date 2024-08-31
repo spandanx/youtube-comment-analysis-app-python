@@ -1,6 +1,6 @@
 from transformers import pipeline
 
-class DistilbertTextSummarizer:
+class DistilbertSummarizer:
 
   def __init__(self):
     self.summarizer = pipeline('summarization')
@@ -8,11 +8,12 @@ class DistilbertTextSummarizer:
   def summarizeText(self, text):
     # summarizer = pipeline('summarization')
     summary = self.summarizer(text)
-    return summary
+    # summary = [line["summary_text"] for line in summary_raw]
+    return summary[0]["summary_text"]
 
 
 if __name__ == "__main__":
-  distilbertTextSummarizer = DistilbertTextSummarizer()
+  distilbertSummarizer = DistilbertSummarizer()
   text = """
   There are two ways of extracting text using TextRank: keyword and sentence extraction. 
   Keyword extraction can be done by simply using a frequency test, but this would almost always prove to be inaccurate. This is where TextRank automates the process to semantically provide far more accurate results based on the corpus.
@@ -21,6 +22,6 @@ if __name__ == "__main__":
   # question = "Where do I live?"
   # context = "My name is Merve and I live in İstanbul."
   # answer = textSummarizer.answer_question(question=question, context=context)
-  print(distilbertTextSummarizer.summarizeText(text))
+  print(distilbertSummarizer.summarizeText(text))
   # print(answer)
 
