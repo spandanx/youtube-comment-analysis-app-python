@@ -81,6 +81,36 @@ async def summarize_text(summarizationDType: SummarizationDType):
             detail=f'Error has occurred -  {e}'
         )
 
+@app.get("/summarize-models/")
+async def get_summarization_model():
+    try:
+        # response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
+        response = ys.get_summarizer_model_list()
+        return response
+
+    except Exception as e:
+        print('Something went wrong')
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error has occurred -  {e}'
+        )
+
+@app.get("/question-answering-models/")
+async def get_question_answering_model():
+    try:
+        # response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
+        response = ys.get_question_answering_model_list()
+        return response
+
+    except Exception as e:
+        print('Something went wrong')
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error has occurred -  {e}'
+        )
+
 @app.post("/answer-question/")
 async def answer_questions(quesAnsDType: QuesAnsDType):
     try:

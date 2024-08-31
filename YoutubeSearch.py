@@ -60,10 +60,10 @@ class YoutubeSearch:
         return models
 
     def get_summarizer_model_list(self):
-        return list(self.summarizer_model_map.keys())
+        return sorted(list(self.summarizer_model_map.keys()))
 
     def get_question_answering_model_list(self):
-        return list(self.ques_ans_model_map.keys())
+        return sorted(list(self.ques_ans_model_map.keys()))
 
     def youtube_get_videos(self, query, max_results):
         search_keyword = youtube_object.search().list(q = query, part = "id, snippet",
@@ -246,13 +246,13 @@ if __name__ == "__main__":
     # result = {'statements': ['Happy durga puja sir', 'Happy Durga Happy Puja Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'Jai Maa Durga', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja']}
     result = {'statements': ['Happy durga puja sir', 'Happy Durga Puja Happy Panchami', 'You may not have seen Chor Bagan...Near Metro...One of the Finest Pandal Bet', 'Dada, you from North Kolkata, will visit another big Puja, now for Dada or Sangha Baranagar. This is the Introduction that I guarantee you will be impressed by the time you watch it.', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Those who keep Chorbagans top 10', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Jai maa Durga ', 'Jai Maa Durga . Har Har Mahadev ', 'Bhai background music download from Katha', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhone dhonne puspe vora. Its poem on rabindranath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada I am Shubhjit Paul saying how to contact', 'Jai maa Durga Jai maa Durga ', 'Jay eyes on '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata In North kolkata it will mainly take place near hedua park or beadon street 15 20 minutes from hatibagan star theatre but I dont know the way of south kolkata procession please find or search the place where it will take place exactly and do the vlog thank u ...', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata .. thank u ...']}
     # print(result)
-    # print(ys.get_model_list())
+    print(ys.get_summarizer_model_list())
     # summary = ys.summarize_comments(result["statements"], "Abstractive - DistilbertSummarizer")
     # for smm in summary:
     #     print(smm)
 
-    qas = ys.answer_questions(result["questions"], '. '.join(result["statements"]), "DistilbertQuestionAnswering")
-    print(qas)
+    # qas = ys.answer_questions(result["questions"], '. '.join(result["statements"]), "DistilbertQuestionAnswering")
+    # print(qas)
     # x = "a"
 
     ########################
