@@ -46,8 +46,8 @@ class YoutubeSearch:
             # "Extractive - SumyLuhnSummarizer": SumyLuhnSummarizer(),
             # "Extractive - SumyTextRankSummarizer": SumyTextRankSummarizer(),
 
-            "Abstractive - BARTAbstractiveSummarizer": BARTAbstractiveSummarizer(),
-            "Abstractive - DistilbertSummarizer": DistilbertSummarizer(),
+            "Abstractive - BARTAbstractiveSummarizer": BARTAbstractiveSummarizer()
+            # "Abstractive - DistilbertSummarizer": DistilbertSummarizer(),
             # "Abstractive - T5BaseSummarizer": T5BaseSummarizer(),
             # "Abstractive - T5SmallSummarizer": T5SmallSummarizer()
         }
@@ -89,7 +89,42 @@ class YoutubeSearch:
             #                            result['snippet']['description'],
             #                            result['snippet']['thumbnails']['default']['url']))
 
-        return videos
+        return {"videos": videos,
+                "itemCount": search_keyword['pageInfo'],
+                "nextPageToken": search_keyword["nextPageToken"] if ("nextPageToken" in search_keyword) else None,
+                "prevPageToken": search_keyword["prevPageToken"] if ("prevPageToken" in search_keyword) else None}
+
+    def youtube_get_videos_by_token(self, page_token, max_results):
+        print("Calling youtube_get_videos_by_token()")
+        print("token - ", page_token)
+        print("max_results - ", max_results)
+        search_keyword = youtube_object.search().list(pageToken = page_token, part = "id, snippet",
+                                                   maxResults = max_results).execute()
+        results = search_keyword.get("items", [])
+        videos = []
+        playlists = []
+        channels = []
+        for result in results:
+            if result['id']['kind'] == "youtube#video":
+                videos.append({"title" :result["snippet"]["title"],
+                                "videoId":result["id"]["videoId"], "description" :result['snippet']['description'],
+                                "thumbnails" :result['snippet']['thumbnails']['default']['url']})
+            # elif result['id']['kind'] == "youtube#playlist":
+            #     playlists.append("% s (% s) (% s) (% s)" % (result["snippet"]["title"],
+            #                          result["id"]["playlistId"],
+            #                          result['snippet']['description'],
+            #                          result['snippet']['thumbnails']['default']['url']))
+            #
+            # elif result['id']['kind'] == "youtube#channel":
+            #     channels.append("% s (% s) (% s) (% s)" % (result["snippet"]["title"],
+            #                            result["id"]["channelId"],
+            #                            result['snippet']['description'],
+            #                            result['snippet']['thumbnails']['default']['url']))
+
+        return {"videos": videos,
+                "itemCount": search_keyword['pageInfo'],
+                "nextPageToken": search_keyword["nextPageToken"] if ("nextPageToken" in search_keyword) else None,
+                "prevPageToken": search_keyword["prevPageToken"] if ("prevPageToken" in search_keyword) else None}
 
     def youtube_get_comments(self, video_id, max_results, statements, questions, classifier, max_results_replies):
 
@@ -206,13 +241,14 @@ class YoutubeSearch:
             joined_texts = '. '.join(each_cluster)
             print(joined_texts)
             summary.append(model.summarizeText(joined_texts))
-        return summary
+        return {"summary": summary}
 
     def answer_questions(self, questions, context, qa_model_name):
         if qa_model_name not in self.ques_ans_model_map:
             raise Exception("Question Answering Model not found!")
         model = self.ques_ans_model_map[qa_model_name]
-        answered_questions = [{"question": ques, "answer": model.answer_question(question=ques, context=context)} for ques in filter(lambda ques: len(ques) > 0, questions)]
+        context_joined = '. '.join(context)
+        answered_questions = [{"question": ques, "answer": model.answer_question(question=ques, context=context_joined)} for ques in filter(lambda ques: len(ques) > 0, questions)]
         return answered_questions
 
 
@@ -221,15 +257,30 @@ class YoutubeSearch:
 
 
 if __name__ == "__main__":
-    search_text = "kolkata restaurants"
+    # search_text = "kolkata restaurants"
     # videos = youtube_search_keyword('Nature Videos', max_results = 2)
     # videos = youtube_search_keyword(search_text, max_results=2)
     # for video in videos:
     #     print(video["title"])
     #     print("\t", video["videoId"])
     #     print("\t", video["description"])
-    ys = YoutubeSearch()
+    # ys = YoutubeSearch()
+    # videos = ys.youtube_get_videos('Nature Videos', max_results=10)
+    # videos = ys.youtube_get_videos('vgfdxfbhlkhvjfcjhjbhjm', max_results=10)
     # videoIdArray = ['viIpUaC6blY']
+
+    query = "vgfdxfbhlkhvjfcjhjbhjm"
+    token = "CAoQAA"
+    max_results = 10
+
+    # search_keyword = youtube_object.search().list(q=query, part="id, snippet", maxResults=max_results).execute()
+    # search_keyword = youtube_object.search().list(pageToken="CAoQAA", part="id, snippet", maxResults=max_results).execute()
+    # search_keyword = youtube_object.search().list(pageToken="CAoQAA", part="id, snippet",
+    #                                               maxResults=max_results).execute()
+    # results = search_keyword.get("items", [])
+    #'CAoQAA'
+
+
     videoIdArray = [
         # "x0fhGdEc2_Y",
         "9HK1ww1HrBU",
@@ -244,9 +295,9 @@ if __name__ == "__main__":
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
     # result = ys.extract_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
     # result = {'statements': ['Happy durga puja sir', 'Happy Durga Happy Puja Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'Jai Maa Durga', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja']}
-    result = {'statements': ['Happy durga puja sir', 'Happy Durga Puja Happy Panchami', 'You may not have seen Chor Bagan...Near Metro...One of the Finest Pandal Bet', 'Dada, you from North Kolkata, will visit another big Puja, now for Dada or Sangha Baranagar. This is the Introduction that I guarantee you will be impressed by the time you watch it.', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Those who keep Chorbagans top 10', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Jai maa Durga ', 'Jai Maa Durga . Har Har Mahadev ', 'Bhai background music download from Katha', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhone dhonne puspe vora. Its poem on rabindranath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada I am Shubhjit Paul saying how to contact', 'Jai maa Durga Jai maa Durga ', 'Jay eyes on '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata In North kolkata it will mainly take place near hedua park or beadon street 15 20 minutes from hatibagan star theatre but I dont know the way of south kolkata procession please find or search the place where it will take place exactly and do the vlog thank u ...', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata .. thank u ...']}
+    # result = {'statements': ['Happy durga puja sir', 'Happy Durga Puja Happy Panchami', 'You may not have seen Chor Bagan...Near Metro...One of the Finest Pandal Bet', 'Dada, you from North Kolkata, will visit another big Puja, now for Dada or Sangha Baranagar. This is the Introduction that I guarantee you will be impressed by the time you watch it.', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Those who keep Chorbagans top 10', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Jai maa Durga ', 'Jai Maa Durga . Har Har Mahadev ', 'Bhai background music download from Katha', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhone dhonne puspe vora. Its poem on rabindranath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada I am Shubhjit Paul saying how to contact', 'Jai maa Durga Jai maa Durga ', 'Jay eyes on '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata In North kolkata it will mainly take place near hedua park or beadon street 15 20 minutes from hatibagan star theatre but I dont know the way of south kolkata procession please find or search the place where it will take place exactly and do the vlog thank u ...', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata .. thank u ...']}
     # print(result)
-    print(ys.get_summarizer_model_list())
+    # print(ys.get_summarizer_model_list())
     # summary = ys.summarize_comments(result["statements"], "Abstractive - DistilbertSummarizer")
     # for smm in summary:
     #     print(smm)
@@ -259,7 +310,10 @@ if __name__ == "__main__":
     # classifier = SentenceTypeDetection.getClassifier()
     # statements = []
     # questions = []
-    # ys = YoutubeSearch()
+    ys = YoutubeSearch()
+    videos = ys.youtube_get_videos_by_token(token, max_results)
+    print(videos)
+    x = "a"
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
     # print(comments)
     # wrapped_text = WrapText.wrapText(statements)

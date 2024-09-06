@@ -50,7 +50,27 @@ async def get_sentence_type(sentence: Sentence):
 
 @app.get("/video-search/")
 async def get_video(searchText: str, max_results: int | None = 10):
-    return ys.youtube_get_videos(searchText, max_results)
+    try:
+        return ys.youtube_get_videos(searchText, max_results)
+    except Exception as e:
+        print('Something went wrong while searching video')
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error has occurred while searching video -  {e}'
+        )
+
+@app.get("/video-search-by-token/")
+async def get_video(pageToken: str, max_results: int | None = 10):
+    try:
+        return ys.youtube_get_videos_by_token(pageToken, max_results)
+    except Exception as e:
+        print('Something went wrong while searching video')
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error has occurred while searching video -  {e}'
+        )
 
 @app.post("/extract-text/")
 async def extract_comments(videoIds: VideoIds):
