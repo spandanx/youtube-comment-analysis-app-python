@@ -94,11 +94,11 @@ class YoutubeSearch:
                 "nextPageToken": search_keyword["nextPageToken"] if ("nextPageToken" in search_keyword) else None,
                 "prevPageToken": search_keyword["prevPageToken"] if ("prevPageToken" in search_keyword) else None}
 
-    def youtube_get_videos_by_token(self, page_token, max_results):
+    def youtube_get_videos_by_token(self, searchText, page_token, max_results):
         print("Calling youtube_get_videos_by_token()")
         print("token - ", page_token)
         print("max_results - ", max_results)
-        search_keyword = youtube_object.search().list(pageToken = page_token, part = "id, snippet",
+        search_keyword = youtube_object.search().list(q = searchText, pageToken = page_token, part = "id, snippet",
                                                    maxResults = max_results).execute()
         results = search_keyword.get("items", [])
         videos = []

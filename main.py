@@ -61,9 +61,9 @@ async def get_video(searchText: str, max_results: int | None = 10):
         )
 
 @app.get("/video-search-by-token/")
-async def get_video(pageToken: str, max_results: int | None = 10):
+async def get_video(searchText: str, pageToken: str, max_results: int | None = 10):
     try:
-        return ys.youtube_get_videos_by_token(pageToken, max_results)
+        return ys.youtube_get_videos_by_token(searchText, pageToken, max_results)
     except Exception as e:
         print('Something went wrong while searching video')
         print(e)
