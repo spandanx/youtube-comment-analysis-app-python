@@ -8,6 +8,8 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 # to get a string like this run:
 # openssl rand -hex 32
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -34,12 +36,26 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
 
+class Settings(BaseSettings):
+    REFFERAL_CODE: str
+    ACCESS_LEVEL: str
+
+    model_config = SettingsConfigDict(env_file=".env")
+
 
 class User(BaseModel):
     username: str
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
+
+class RegisterUser(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+    password: str | None = None
+    disabled: bool | None = None
+    referral_code: str | None = None
 
 
 class UserInDB(User):
@@ -118,8 +134,28 @@ async def get_all_user():
     return sorted(list(fake_users_db.keys()))
 
 async def add_user(user):
-    fake_users_db[user.username] = user
-    return fake_users_db[user.username].username
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Invalid refferal code!",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    settings = get_settings()
+    temp_user = dict(user)
+    if 'referral_code' in temp_user:
+        if (temp_user['referral_code'] != settings.REFFERAL_CODE):
+            raise forbidden_exception
+    else:
+        raise forbidden_exception
+    if 'password' in temp_user:
+        temp_user['hashed_password'] = get_password_hash(temp_user['password'])
+        del temp_user['password']
+    fake_users_db[temp_user['username']] = temp_user
+    print(fake_users_db)
+    return fake_users_db[temp_user["username"]]["username"]
+
+def get_settings():
+    return Settings()
+
 
 
 if __name__ == "__main__":

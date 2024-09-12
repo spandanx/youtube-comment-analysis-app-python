@@ -10,8 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Annotated
 
-from Security.OAuth2Security import fake_users_db, UserInDB, get_current_active_user, User, Token, \
-    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user
+from Security.OAuth2Security import fake_users_db, UserInDB, get_current_active_user, User, RegisterUser, Token, \
+    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, get_settings
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 origins = [
@@ -207,8 +207,13 @@ async def read_users_all():
 async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+    return [{"owner": current_user.username}]
 
 @app.post("/users/register/")
-async def register_user(user: User):
+async def register_user(user: RegisterUser):
     return await add_user(user)
+
+@app.get("/settings/")
+async def get_settings_property():
+    settings = dict(get_settings())
+    return settings
