@@ -10,8 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Annotated
 
-from Security.OAuth2Security import fake_users_db, UserInDB, get_current_active_user, User, RegisterUser, Token, \
-    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, get_settings
+from Security.OAuth2Security import fake_users_db, User, RegisterUser, Token, \
+    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, get_settings, \
+    get_current_active_user
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 origins = [
@@ -217,3 +218,13 @@ async def register_user(user: RegisterUser):
 async def get_settings_property():
     settings = dict(get_settings())
     return settings
+
+@app.on_event("startup")
+async def startup_event():
+    print("Executing on startup")
+    # Perform any necessary setup here
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("Executing on shutdown")
+    # Perform any necessary cleanup here

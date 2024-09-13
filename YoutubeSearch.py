@@ -15,16 +15,20 @@ from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import Su
 from DataProcessing.TextSummarization.Extractive.SumyLuhnSummarizer import SumyLuhnSummarizer
 from DataProcessing.TextSummarization.Extractive.SumyTextRankSummarizer import SumyTextRankSummarizer
 from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
+from Security.OAuth2Security import get_settings
+# from Security.OAuth2Security import OAuth2Security
 from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 from DataProcessing import WrapText
 from SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
 
-DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
+# DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-youtube_object = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                                        developerKey = DEVELOPER_KEY)
+
+# class OAuth2Security:
+#     pass
+
 
 class YoutubeSearch:
 
@@ -36,6 +40,9 @@ class YoutubeSearch:
         self.summarizer_model_map = self.initialize_summarizer_models()
         self.ques_ans_model_map = self.initialize_question_answering_models()
         self.kmeansClusterer = KMeansClusterer()
+        # self.oAuth2Security = OAuth2Security()
+        self.youtube_object = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                               developerKey=get_settings().YOUTUBE_DEVELOPER_KEY)
 
     def initialize_summarizer_models(self):
         models = {
@@ -66,7 +73,7 @@ class YoutubeSearch:
         return sorted(list(self.ques_ans_model_map.keys()))
 
     def youtube_get_videos(self, query, max_results):
-        search_keyword = youtube_object.search().list(q = query, part = "id, snippet",
+        search_keyword = self.youtube_object.search().list(q = query, part = "id, snippet",
                                                    maxResults = max_results).execute()
         results = search_keyword.get("items", [])
         videos = []
@@ -98,7 +105,7 @@ class YoutubeSearch:
         print("Calling youtube_get_videos_by_token()")
         print("token - ", page_token)
         print("max_results - ", max_results)
-        search_keyword = youtube_object.search().list(q = searchText, pageToken = page_token, part = "id, snippet",
+        search_keyword = self.youtube_object.search().list(q = searchText, pageToken = page_token, part = "id, snippet",
                                                    maxResults = max_results).execute()
         results = search_keyword.get("items", [])
         videos = []
@@ -130,7 +137,7 @@ class YoutubeSearch:
 
         comments = []
         try:
-            comment_objects = youtube_object.commentThreads().list(part="id,snippet,replies",
+            comment_objects = self.youtube_object.commentThreads().list(part="id,snippet,replies",
                                              maxResults=max_results, videoId=video_id).execute()
             results = comment_objects.get("items", [])
         except Exception as e:
@@ -159,7 +166,7 @@ class YoutubeSearch:
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
-                replies['comments'] = self.get_comment_replies(youtube_object, item['id'], statements, questions, classifier, max_results_replies)
+                replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], statements, questions, classifier, max_results_replies)
 
         print("Comments:\n", "\n".join(comments), "\n")
         print("Questions:\n", "\n".join(questions), "\n")

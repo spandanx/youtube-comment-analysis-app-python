@@ -39,6 +39,10 @@ class TokenData(BaseModel):
 class Settings(BaseSettings):
     REFFERAL_CODE: str
     ACCESS_LEVEL: str
+    YOUTUBE_DEVELOPER_KEY: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: str
 
     model_config = SettingsConfigDict(env_file=".env")
 
@@ -61,14 +65,19 @@ class RegisterUser(BaseModel):
 class UserInDB(User):
     hashed_password: str
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# class OAuth2Security:
+#
+#     def __init__(self):
+#         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+#         self.settings = self.get_settings()
+#         self.SECRET_KEY = self.settings.SECRET_KEY
+#         self.ALGORITHM = self.settings.ALGORITHM
+#         self.ACCESS_TOKEN_EXPIRE_MINUTES = self.settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
-
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -78,7 +87,6 @@ def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
-
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
@@ -99,6 +107,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+async def oauth2_scheme():
+    return OAuth2PasswordBearer(tokenUrl="token")
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -123,8 +133,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)],
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
@@ -134,24 +143,32 @@ async def get_all_user():
     return sorted(list(fake_users_db.keys()))
 
 async def add_user(user):
-    forbidden_exception = HTTPException(
+    forbidden_exception_ref_code = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Invalid refferal code!",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    forbidden_exception_user_exists = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="User already exists!",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     settings = get_settings()
     temp_user = dict(user)
+    if (temp_user['username'] in fake_users_db):
+        raise forbidden_exception_user_exists
     if 'referral_code' in temp_user:
         if (temp_user['referral_code'] != settings.REFFERAL_CODE):
-            raise forbidden_exception
+            raise forbidden_exception_ref_code
     else:
-        raise forbidden_exception
+        raise forbidden_exception_ref_code
     if 'password' in temp_user:
         temp_user['hashed_password'] = get_password_hash(temp_user['password'])
         del temp_user['password']
     fake_users_db[temp_user['username']] = temp_user
     print(fake_users_db)
     return fake_users_db[temp_user["username"]]["username"]
+
 
 def get_settings():
     return Settings()
@@ -160,7 +177,7 @@ def get_settings():
 
 if __name__ == "__main__":
     # search_text = "kolkata restaurants"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzI2MDI1MzQxfQ.YNH8DsMuSw4N8JpS1C1lmIc9Ph6XmRyZi5k0EMvmiaM"
+    token = ""
     # response = await get_current_user(token)
     # res = get_current_user_classic(token)
     # print(res)
