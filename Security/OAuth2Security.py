@@ -12,9 +12,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 5
+# SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 1
+
 
 
 fake_users_db = {
@@ -46,6 +47,12 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env")
 
+def get_settings():
+    return Settings()
+
+SECRET_KEY = get_settings().SECRET_KEY
+ALGORITHM = get_settings().ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = int(get_settings().ACCESS_TOKEN_EXPIRE_MINUTES)
 
 class User(BaseModel):
     username: str
@@ -75,6 +82,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #         self.SECRET_KEY = self.settings.SECRET_KEY
 #         self.ALGORITHM = self.settings.ALGORITHM
 #         self.ACCESS_TOKEN_EXPIRE_MINUTES = self.settings.ACCESS_TOKEN_EXPIRE_MINUTES
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# def oauth2_scheme():
+#     return OAuth2PasswordBearer(tokenUrl="token")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -100,21 +110,25 @@ def authenticate_user(fake_db, username: str, password: str):
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
+        print("expires_delta", expires_delta)
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        print("expires in ", 60, "minutes")
+        expire = datetime.now(timezone.utc) + timedelta(minutes=1)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def oauth2_scheme():
-    return OAuth2PasswordBearer(tokenUrl="token")
-
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Could not validate credentials!",
         headers={"WWW-Authenticate": "Bearer"},
+    )
+    token_expired_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Token is expired!",
+        headers={"WWW-Authenticate": "Bearer", "REASON": "TOKEN_EXPIRED"},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -125,6 +139,9 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             raise credentials_exception
         token_data = TokenData(username=username)
         print(token_data)
+
+    except jwt.ExpiredSignatureError:
+        raise token_expired_exception
     except InvalidTokenError:
         raise credentials_exception
     user = get_user(fake_users_db, username=token_data.username)
@@ -135,6 +152,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)],
 ):
+    print(current_user)
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -170,14 +188,17 @@ async def add_user(user):
     return fake_users_db[temp_user["username"]]["username"]
 
 
-def get_settings():
-    return Settings()
-
 
 
 if __name__ == "__main__":
-    # search_text = "kolkata restaurants"
-    token = ""
+    search_text = "kolkata restaurants"
+    # token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzI2NTEwMzUzfQ.YP4oZ6q070sa8owmo9rx20qjaeTYoCL0npImN8rHV4A"
+    # token_60 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzI2NTE0MzQ4fQ.RmMT_tJkw-MUIuvS0Albou0ReDzg80wiNsa6gd7dD40"
+    # token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzI2NTEwODQ3fQ.gF5rLNkMNF6KJ5vbARYlm5TivxGiIgfQxSSG1rbQG-w"
+    # token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiZXhwIjoxNzI2NTEwODQ3fQ.gF5rLNkMNF6KJ5vbARYlm5TivxGiIgfQxSSG1rb-w00"
+    # res = get_current_user(token_1)
+    # token = create_access_token({"sub": "johndoe"})
+    # print(token)
     # response = await get_current_user(token)
     # res = get_current_user_classic(token)
     # print(res)

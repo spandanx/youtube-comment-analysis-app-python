@@ -10,9 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Annotated
 
-from Security.OAuth2Security import fake_users_db, User, RegisterUser, Token, \
-    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, get_settings, \
-    get_current_active_user
+from Security.OAuth2Security import fake_users_db, User, Token, \
+    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, \
+    get_current_active_user, RegisterUser, get_settings
+# from Security.OAuth2Security import
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 origins = [
@@ -55,12 +56,17 @@ ys = YoutubeSearch()
 async def root(token: Annotated[str, Depends(oauth2_scheme)]):
     return {"message": "I am Alive!"}
 
+@app.get("/heathcheck2")
+async def root2(current_user: Annotated[User, Depends(get_current_active_user)]):
+    return {"message": "I am Alive!"}
+
 @app.post("/check-sentence/")
 async def get_sentence_type(sentence: Sentence):
     return SentenceTypeDetection.TestSentenceDetectionModel(sentence.text)
 
 @app.get("/video-search/")
-async def get_video(searchText: str, max_results: int | None = 10):
+async def get_video(current_user: Annotated[User, Depends(get_current_active_user)],
+                    searchText: str, max_results: int | None = 10):
     try:
         return ys.youtube_get_videos(searchText, max_results)
     except Exception as e:
@@ -206,7 +212,7 @@ async def read_users_all():
 
 @app.get("/users/me/items/")
 async def read_own_items(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return [{"owner": current_user.username}]
 
