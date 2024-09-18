@@ -44,6 +44,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -52,12 +53,12 @@ from SentenceDetectionGeneratorDetector import SentenceTypeDetection
 
 ys = YoutubeSearch()
 
-@app.get("/heathcheck")
+@app.get("/healthcheck-draft")
 async def root(token: Annotated[str, Depends(oauth2_scheme)]):
     return {"message": "I am Alive!"}
 
-@app.get("/heathcheck2")
-async def root2(current_user: Annotated[User, Depends(get_current_active_user)]):
+@app.get("/healthcheck")
+async def healthcheck(current_user: Annotated[User, Depends(get_current_active_user)]):
     return {"message": "I am Alive!"}
 
 @app.post("/check-sentence/")
@@ -78,7 +79,8 @@ async def get_video(current_user: Annotated[User, Depends(get_current_active_use
         )
 
 @app.get("/video-search-by-token/")
-async def get_video(searchText: str, pageToken: str, max_results: int | None = 10):
+async def get_video(current_user: Annotated[User, Depends(get_current_active_user)],
+                    searchText: str, pageToken: str, max_results: int | None = 10):
     try:
         return ys.youtube_get_videos_by_token(searchText, pageToken, max_results)
     except Exception as e:
@@ -90,7 +92,8 @@ async def get_video(searchText: str, pageToken: str, max_results: int | None = 1
         )
 
 @app.post("/extract-text/")
-async def extract_comments(videoIds: VideoIds):
+async def extract_comments(current_user: Annotated[User, Depends(get_current_active_user)],
+                           videoIds: VideoIds):
     try:
         response = ys.extract_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
         return response
@@ -104,7 +107,8 @@ async def extract_comments(videoIds: VideoIds):
         )
 
 @app.post("/summarize-text/")
-async def summarize_text(summarizationDType: SummarizationDType):
+async def summarize_text(current_user: Annotated[User, Depends(get_current_active_user)],
+                         summarizationDType: SummarizationDType):
     try:
         # response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
         response = ys.summarize_comments(summarizationDType.texts, summarizationDType.summModel)
@@ -119,7 +123,7 @@ async def summarize_text(summarizationDType: SummarizationDType):
         )
 
 @app.get("/summarize-models/")
-async def get_summarization_model():
+async def get_summarization_model(current_user: Annotated[User, Depends(get_current_active_user)]):
     try:
         # response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
         response = ys.get_summarizer_model_list()
@@ -134,7 +138,7 @@ async def get_summarization_model():
         )
 
 @app.get("/question-answering-models/")
-async def get_question_answering_model():
+async def get_question_answering_model(current_user: Annotated[User, Depends(get_current_active_user)]):
     try:
         # response = ys.summarize_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
         response = ys.get_question_answering_model_list()
@@ -149,7 +153,8 @@ async def get_question_answering_model():
         )
 
 @app.post("/answer-question/")
-async def answer_questions(quesAnsDType: QuesAnsDType):
+async def answer_questions(current_user: Annotated[User, Depends(get_current_active_user)],
+                           quesAnsDType: QuesAnsDType):
     try:
         return ys.answer_questions(quesAnsDType.questions, quesAnsDType.context, quesAnsDType.qaModel)
 
