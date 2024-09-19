@@ -37,7 +37,7 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 
 
 ### Step 1. Clone the repositories
-#### Frontend: https://github.com/spandanx/ChitChatReactNative
+#### Frontend: https://github.com/spandanx/youtube-comment-analysis-reactjs
 
 
 ### Step 2. Install required softwares
