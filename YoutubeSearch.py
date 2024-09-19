@@ -196,16 +196,19 @@ class YoutubeSearch:
             # len(filtered_sentence.split(' ')) > 1
             filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']])
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
-            reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
-            sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
+            reply_text = list(filter(None, [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]))
+            # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
+            # sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
+            sentence_type_list = [self.lstm_load.predict_sentence_array([reply_tx]) for reply_tx in reply_text]
+            # for sent in sentence_type_list:
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
-                reply["snippet"]["sentenceType"] = sentence_type['type']
+                reply["snippet"]["sentenceType"] = sentence_type[0]['type']
                 # sentence = reply["snippet"]["textDisplay"]
                 # sentence_type = SentenceTypeDetection.TestSentenceDetectionModel(reply["snippet"]["textDisplay"])
                 # reply["snippet"]["sentenceType"] = sentence_type
-                if (sentence_type['type'] == 'statement'):
+                if (reply["snippet"]["sentenceType"] == 'statement'):
                     statements.append(each_reply_text)
-                elif (sentence_type['type'] == 'question'):
+                elif (reply["snippet"]["sentenceType"] == 'question'):
                     questions.append(each_reply_text)
             replies.extend(reply_list)
             request = service.comments().list_next(request, response)
@@ -288,16 +291,34 @@ if __name__ == "__main__":
     #'CAoQAA'
 
 
+    # videoIdArray = [
+    #     # "x0fhGdEc2_Y",
+    #     "9HK1ww1HrBU",
+    #     "W7laFRcwoBI",
+    #     "_jhUvcjElro",
+    #     "04UH1iV0CHI",
+    #     "xyzGci9Qruc",
+    #     "7ZdY_ZbQsh8",
+    #     "fjdXERhm6NU",
+    #     "7tMEcD0O0lg"
+    # ]
+
+    # videoIdArray = [
+            # "o0MCsE-04dg",
+            #         "CKnGXZxK7zs",
+            #         "lr7Jdl2ZexA", "bzLqz6p5HCk", "dQhuZAFoHos"]
+
     videoIdArray = [
-        # "x0fhGdEc2_Y",
-        "9HK1ww1HrBU",
-        "W7laFRcwoBI",
-        "_jhUvcjElro",
-        "04UH1iV0CHI",
-        "xyzGci9Qruc",
-        "7ZdY_ZbQsh8",
-        "fjdXERhm6NU",
-        "7tMEcD0O0lg"
+        # "K18nEQf8i9c",
+        # "IgAnj6r1O48",
+        # "zc_iulZt-us",
+        "HWGzQlrJOqM",
+        "98kYg52aQeY",
+        "wO2SVajcsY4",
+        "XSE9dj8t3kE",
+        "2vUdkzbXbko",
+        "8EeX55DLXVw",
+        "ZNEGCogvhwo"
     ]
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
     # result = ys.extract_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
@@ -318,8 +339,9 @@ if __name__ == "__main__":
     # statements = []
     # questions = []
     ys = YoutubeSearch()
-    videos = ys.youtube_get_videos_by_token(token, max_results)
-    print(videos)
+    # videos = ys.youtube_get_videos_by_token(token, max_results)
+    extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
+    print(extracted_texts)
     x = "a"
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
     # print(comments)
