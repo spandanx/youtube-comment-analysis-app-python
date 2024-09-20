@@ -51,9 +51,10 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 ### High Level Design Diagram
 
 
+### Activity Diagram
+<img src="https://github.com/user-attachments/assets/22e0bede-a581-4ac8-ae46-b4aebd8dd390" width=35% height=35%>
+
 ### Functional Diagram
-
-
 
 
 ## Youtube link
