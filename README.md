@@ -55,6 +55,12 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 <img src="https://github.com/user-attachments/assets/22e0bede-a581-4ac8-ae46-b4aebd8dd390" width=35% height=35%>
 
 ### Functional Diagram
+<p></p>
+<img src="https://github.com/user-attachments/assets/53ed1a44-f129-4cb1-8ef6-c64b4c633645" width=35% height=35%>
+<p></p>
+<img src="https://github.com/user-attachments/assets/1e60529e-c0d5-4de5-adfb-a0d04ab05007" width=35% height=35%>
+<p></p>
+<img src="https://github.com/user-attachments/assets/52e526ef-2864-4f4e-ad15-325f45682b3c" width=35% height=35%>
 
 
 ## Youtube link
