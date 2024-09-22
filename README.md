@@ -8,7 +8,7 @@ This a web application that can combine multiple youtube content and give a summ
  - Login with Oauth authentication
 
 <details>
-   <summary> Snap Shots</summary>
+   <summary>Application Snap Shots</summary>
   <p>LoginPage</p>
   <img src="https://github.com/user-attachments/assets/eedfea3b-9f27-40c8-a8ae-658d2b34d248" width=25% height=25%>
   <p>RegistrationPage</p>
@@ -56,11 +56,11 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 
 ### Functional Diagram
 <p></p>
-<img src="https://github.com/user-attachments/assets/53ed1a44-f129-4cb1-8ef6-c64b4c633645" width=35% height=35%>
+<img src="https://github.com/user-attachments/assets/53ed1a44-f129-4cb1-8ef6-c64b4c633645" width=50% height=50%>
 <p></p>
-<img src="https://github.com/user-attachments/assets/1e60529e-c0d5-4de5-adfb-a0d04ab05007" width=35% height=35%>
+<img src="https://github.com/user-attachments/assets/1e60529e-c0d5-4de5-adfb-a0d04ab05007" width=50% height=50%>
 <p></p>
-<img src="https://github.com/user-attachments/assets/52e526ef-2864-4f4e-ad15-325f45682b3c" width=35% height=35%>
+<img src="https://github.com/user-attachments/assets/52e526ef-2864-4f4e-ad15-325f45682b3c" width=50% height=50%>
 
 
 ## Youtube link
