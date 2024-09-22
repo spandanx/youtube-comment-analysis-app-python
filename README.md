@@ -37,15 +37,34 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 
 
 ### Step 1. Clone the repositories
+#### Backend: https://github.com/spandanx/youtube-comment-analysis-app-python
 #### Frontend: https://github.com/spandanx/youtube-comment-analysis-reactjs
 
 
 ### Step 2. Install required softwares
 
 `Node.js`
-`Python 3.10`
+`Miniconda`
 
-### Step 2. Install required softwares
+### Step 3. Prepare backend
+
+#### Create new environment
+<p> Open miniconda console </p>
+<p> Run the below commands </p>
+<p> conda create -n env-name python=3.10 </p>
+<p> conda activate env-name </p>
+
+#### Install required packages
+<p> python -m pip install -r requirements.txt </p>
+<p> python -m spacy download en_core_web_sm </p>
+
+#### Go to Python shell
+<p> import nltk </p>
+<p> nltk.download() </p>
+
+#### Run the python application
+<p>python -m uvicorn main:app --reload --env-file path-to-env-file/custom_env_data.env</p>
+<p>The environment file should contain the youtube api key, the text encoding etc.</p>
 
 ## Architecture
 ### High Level Design Diagram
