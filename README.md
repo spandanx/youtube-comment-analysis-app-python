@@ -81,12 +81,9 @@ The environment file should contain the youtube api key, the text encoding etc.
 <img src="https://github.com/user-attachments/assets/22e0bede-a581-4ac8-ae46-b4aebd8dd390" width=35% height=35%>
 
 ### Functional Diagram
-<p></p>
-<img src="https://github.com/user-attachments/assets/53ed1a44-f129-4cb1-8ef6-c64b4c633645" width=50% height=50%>
-<p></p>
-<img src="https://github.com/user-attachments/assets/1e60529e-c0d5-4de5-adfb-a0d04ab05007" width=50% height=50%>
-<p></p>
-<img src="https://github.com/user-attachments/assets/52e526ef-2864-4f4e-ad15-325f45682b3c" width=50% height=50%>
+![FunctionalDiagram_Extract_Text_Youtube_Comment_Analyzer](https://github.com/user-attachments/assets/de183f3d-4b38-4142-bdda-5e7a469ed12e)
+![FunctionalDiagram_Summary_Youtube_Comment_Analyzer](https://github.com/user-attachments/assets/ebe398fd-e50c-44ab-b7fc-ae4417717f03)
+![FunctionalDiagram_QA_Youtube_Comment_Analyzer](https://github.com/user-attachments/assets/53ed1a44-f129-4cb1-8ef6-c64b4c633645)
 
 
 ## Youtube link
