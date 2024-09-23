@@ -28,7 +28,7 @@ This a web application that can combine multiple youtube content and give a summ
 	
 ## Technologies used
 
-Frontend - React.js
+Frontend - `React.js`
 
 Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `Huggingface Summarizer`
 
