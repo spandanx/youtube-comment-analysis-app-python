@@ -49,22 +49,29 @@ Backend - `FastAPI`, `OAuth2 Security`, `Python`, `KMeans Clustering`, `LSTM`, `
 ### Step 3. Prepare backend
 
 #### Create new environment
-<p> Open miniconda console </p>
-<p> Run the below commands </p>
-<p> conda create -n env-name python=3.10 </p>
-<p> conda activate env-name </p>
+<p>Open miniconda console. Run the below commands </p>
+
+```
+conda create -n env-name python=3.10
+conda activate env-name
+```
 
 #### Install required packages
-<p> python -m pip install -r requirements.txt </p>
-<p> python -m spacy download en_core_web_sm </p>
+```
+python -m pip install -r requirements.txt
+python -m spacy download en_core_web_sm
+```
 
 #### Go to Python shell
-<p> import nltk </p>
-<p> nltk.download() </p>
-
+```
+import nltk
+nltk.download()
+```
 #### Run the python application
-<p>python -m uvicorn main:app --reload --env-file path-to-env-file/custom_env_data.env</p>
-<p>The environment file should contain the youtube api key, the text encoding etc.</p>
+```
+python -m uvicorn main:app --reload --env-file path-to-env-file/custom_env_data.env
+```
+The environment file should contain the youtube api key, the text encoding etc.
 
 ## Architecture
 ### High Level Design Diagram
