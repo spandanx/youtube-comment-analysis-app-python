@@ -1,4 +1,4 @@
-from CharacterLanguageGeneraterDetecter.LanguageCharacterDetector import LanguageCharacterDetector
+from DataProcessing.CharacterLanguageGeneraterDetecter.LanguageCharacterDetector import LanguageCharacterDetector
 from IndicTransliteration.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
 
 if __name__ == "__main__":

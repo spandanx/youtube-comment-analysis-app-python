@@ -1,6 +1,5 @@
 from datetime import timedelta
 from typing import List
-from typing import Union
 from fastapi import FastAPI, Request, HTTPException, status, Depends
 from pydantic import BaseModel
 
@@ -49,7 +48,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-from SentenceDetectionGeneratorDetector import SentenceTypeDetection
+from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
 
 ys = YoutubeSearch()
 

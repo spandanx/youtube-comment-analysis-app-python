@@ -1,27 +1,18 @@
 from apiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 
-from Clustering.KMeansClustering import KMeansClusterer
+from DataProcessing.Clustering.KMeansClustering import KMeansClusterer
 from DataProcessing.QuestionAnswering.DistilbertQuestionAnswering import DistilbertQuestionAnswering
 from DataProcessing.SentenceCleanser import SentenceCleanser
 from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
-from DataProcessing.TextSummarization.Abstractive.DistilbertSummarizer import DistilbertSummarizer
-from DataProcessing.TextSummarization.Abstractive.T5BaseSummarizer import T5BaseSummarizer
-from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
-from DataProcessing.TextSummarization.Extractive.BertExtractiveSummarizer import BertExtractiveSummarizer
-from DataProcessing.TextSummarization.Extractive.NLTKSummarizer import NLTKSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLSASummarizer import SumyLSARankSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLuhnSummarizer import SumyLuhnSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyTextRankSummarizer import SumyTextRankSummarizer
-from LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
+from DataProcessing.LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from Security.OAuth2Security import get_settings
 # from Security.OAuth2Security import OAuth2Security
-from SentenceDetectionGeneratorDetector import SentenceTypeDetection
+from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
 from DataProcessing import WrapText
-from SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
+from DataProcessing.SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
 
-# DEVELOPER_KEY = "AIzaSyDIyibF6V6UU4ctTjlojI9sI113AJ01y20"
+# DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -133,10 +124,14 @@ class YoutubeSearch:
                 "nextPageToken": search_keyword["nextPageToken"] if ("nextPageToken" in search_keyword) else None,
                 "prevPageToken": search_keyword["prevPageToken"] if ("prevPageToken" in search_keyword) else None}
 
+    '''
+    Extracts out youtube comments, description and possible question and answer for a given video ID.
+    '''
     def youtube_get_comments(self, video_id, max_results, statements, questions, classifier, max_results_replies):
 
         comments = []
         try:
+            # Fetchin all the comments
             comment_objects = self.youtube_object.commentThreads().list(part="id,snippet,replies",
                                              maxResults=max_results, videoId=video_id).execute()
             results = comment_objects.get("items", [])
@@ -144,16 +139,16 @@ class YoutubeSearch:
             print(e)
             return comments
 
-        for item in results:
+        for item in results: #Iterating over the comments
             # comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             sentence = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             print(sentence)
             filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
             if (len(filtered_sentence.split(' '))>1):
-                translated_sentence = self.language_processing_model.convert_language_of_text(filtered_sentence)
-                cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
+                translated_sentence = self.language_processing_model.convert_language_of_text(filtered_sentence) #Translate the description to english
+                cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence) #Remove any special characters in the comments
                 if (len(cleaned_sentence)>1):
-                    sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])
+                    sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence]) #Detects if the comment is a question or a general sentence
                     item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
                     item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
                     if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='statement'):
@@ -166,6 +161,7 @@ class YoutubeSearch:
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
+                #Extract replies of the comment
                 replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], statements, questions, classifier, max_results_replies)
 
         print("Comments:\n", "\n".join(comments), "\n")
@@ -194,12 +190,12 @@ class YoutubeSearch:
             # cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
             # sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
             # len(filtered_sentence.split(' ')) > 1
-            filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']])
+            filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']]) # Get the texts of the replies
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
-            reply_text = list(filter(None, [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]))
+            reply_text = list(filter(None, [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts])) #remove any special characters and remove any empty string
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
             # sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
-            sentence_type_list = [self.lstm_load.predict_sentence_array([reply_tx]) for reply_tx in reply_text]
+            sentence_type_list = [self.lstm_load.predict_sentence_array([reply_tx]) for reply_tx in reply_text] #Translate the sentences to english
             # for sent in sentence_type_list:
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type[0]['type']
@@ -211,7 +207,7 @@ class YoutubeSearch:
                 elif (reply["snippet"]["sentenceType"] == 'question'):
                     questions.append(each_reply_text)
             replies.extend(reply_list)
-            request = service.comments().list_next(request, response)
+            request = service.comments().list_next(request, response) #Fetch the next set of comments
 
         return replies
 
@@ -229,6 +225,9 @@ class YoutubeSearch:
         transcript = api.get_transcript(video_id, languages=languages)
         return transcript
 
+    '''
+    Extracts out youtube comments, description and possible question and answers for a give video ID array.
+    '''
     def extract_youtube_comments(self, videoIdArray, max_results_comments, max_results_replies):
         classifier = SentenceTypeDetection.getClassifier()
         statements = []
@@ -243,7 +242,7 @@ class YoutubeSearch:
         if summarizer_model_name not in self.summarizer_model_map:
             raise Exception("Summarizer Model not found!")
         model = self.summarizer_model_map[summarizer_model_name]
-
+        #Clusterize comments, replies and description
         clustered_texts = self.kmeansClusterer.clusterize_texts(statements)
         # print(clustered_texts)
         summary = []
