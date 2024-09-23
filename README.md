@@ -10,19 +10,19 @@ This a web application that can combine multiple youtube content and give a summ
 <details>
    <summary>Application Snap Shots</summary>
   <p>LoginPage</p>
-  <img src="https://github.com/user-attachments/assets/eedfea3b-9f27-40c8-a8ae-658d2b34d248" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/eedfea3b-9f27-40c8-a8ae-658d2b34d248" width=50% height=50%>
   <p>RegistrationPage</p>
-  <img src="https://github.com/user-attachments/assets/26fd57ee-51b4-442c-9aed-cf5e54c7bd6c" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/26fd57ee-51b4-442c-9aed-cf5e54c7bd6c" width=50% height=50%>
   <p>HomePage</p>
-  <img src="https://github.com/user-attachments/assets/0f0a5bc4-ae9f-4b80-8f7e-8d49bb2c0028" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/0f0a5bc4-ae9f-4b80-8f7e-8d49bb2c0028" width=50% height=50%>
   <p>Model Selection</p>
-  <img src="https://github.com/user-attachments/assets/7353dcc3-80ce-444e-aa6c-715e8213c87c" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/7353dcc3-80ce-444e-aa6c-715e8213c87c" width=50% height=50%>
   <p>VideoList</p>
-  <img src="https://github.com/user-attachments/assets/1a66b488-863b-4ae3-8c49-03e6d58d886c" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/1a66b488-863b-4ae3-8c49-03e6d58d886c" width=50% height=50%>
   <p>SummaryList</p>
-  <img src="https://github.com/user-attachments/assets/b8a0cf26-91be-4e3c-8887-4ae2b6d3d00e" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/b8a0cf26-91be-4e3c-8887-4ae2b6d3d00e" width=50% height=50%>
   <p>QuestionList</p>
-  <img src="https://github.com/user-attachments/assets/be73f57e-fd68-49bf-8637-fbb140f24a45" width=25% height=25%>
+  <img src="https://github.com/user-attachments/assets/be73f57e-fd68-49bf-8637-fbb140f24a45" width=50% height=50%>
 
 </details>
 	
