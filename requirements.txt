@@ -30,4 +30,6 @@ passlib[bcrypt]
 pydantic-settings
 python-dotenv
 python-multipart
+mysql-connector-python
+pycryptodome
 -e .

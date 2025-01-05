@@ -6,71 +6,29 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
-from pydantic import BaseModel
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-# to get a string like this run:
-# openssl rand -hex 32
-# SECRET_KEY = ""
-# ALGORITHM = "HS256"
-# ACCESS_TOKEN_EXPIRE_MINUTES = 1
+from src.config.CommonVariables import TokenData, User, RegisterUser, get_settings
+from src.db.MySQLDB import MysqlDB
 
 
-
-fake_users_db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "Admin User",
-        "email": "admin@admin.com",
-        "hashed_password": "$2b$12$cEgVZpjKEu79bo97d.h1muyLfV2U/JqNdslg/T/0cEJwcBvdbyKem",
-        "disabled": False,
-    }
-}
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+# fake_users_db = {
+#     "admin": {
+#         "username": "admin",
+#         "full_name": "Admin User",
+#         "email": "admin@admin.com",
+#         "hashed_password": "$2b$12$G6Qw5e.K871doase2mJqgepPaB7frMIWb973E9zspNl3dNrHSik8C",#"$2b$12$cEgVZpjKEu79bo97d.h1muyLfV2U/JqNdslg/T/0cEJwcBvdbyKem",
+#         "disabled": False,
+#     }
+# }
 
 
-class TokenData(BaseModel):
-    username: str | None = None
-
-class Settings(BaseSettings):
-    REFFERAL_CODE: str
-    ACCESS_LEVEL: str
-    YOUTUBE_DEVELOPER_KEY: str
-    SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: str
-
-    model_config = SettingsConfigDict(env_file=".env")
-
-def get_settings():
-    return Settings()
 
 SECRET_KEY = get_settings().SECRET_KEY
 ALGORITHM = get_settings().ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = int(get_settings().ACCESS_TOKEN_EXPIRE_MINUTES)
 
-class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
+mysqlDB = MysqlDB()
 
-class RegisterUser(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    password: str | None = None
-    disabled: bool | None = None
-    referral_code: str | None = None
-
-
-class UserInDB(User):
-    hashed_password: str
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -93,16 +51,21 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+def get_user(username: str):
+    print("Called get_user()")
+    result = mysqlDB.get_user_by_username(username)
+    if len(result)>0:
+        return result[0]
+    # if username in db:
+    #     user_dict = db[username]
+    #     return UserInDB(**user_dict)
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(username: str, password: str):
+    print("Called authenticate_user()")
+    user = get_user(username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user["hashed_password"]):
         return False
     return user
 
@@ -144,7 +107,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise token_expired_exception
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(username=token_data.username)
     print(user)
     if user is None:
         raise credentials_exception
@@ -153,12 +116,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)],
 ):
     print(current_user)
-    if current_user.disabled:
+    if current_user['disabled']:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-async def get_all_user():
-    return sorted(list(fake_users_db.keys()))
+# async def get_all_user():
+#     return sorted(list(fake_users_db.keys()))
 
 async def add_user(user):
     forbidden_exception_ref_code = HTTPException(
@@ -173,7 +136,8 @@ async def add_user(user):
     )
     settings = get_settings()
     temp_user = dict(user)
-    if (temp_user['username'] in fake_users_db):
+    current_user = get_user(temp_user['username'])
+    if (current_user is not None):
         raise forbidden_exception_user_exists
     if 'referral_code' in temp_user:
         if (temp_user['referral_code'] != settings.REFFERAL_CODE):
@@ -183,12 +147,11 @@ async def add_user(user):
     if 'password' in temp_user:
         temp_user['hashed_password'] = get_password_hash(temp_user['password'])
         del temp_user['password']
-    fake_users_db[temp_user['username']] = temp_user
-    print(fake_users_db)
-    return fake_users_db[temp_user["username"]]["username"]
-
-
-
+    to_be_registered_user = RegisterUser(**temp_user)
+    mysqlDB.create_user(to_be_registered_user)
+    # fake_users_db[temp_user['username']] = temp_user
+    # print(fake_users_db)
+    return temp_user["username"]
 
 if __name__ == "__main__":
     search_text = "kolkata restaurants"
@@ -202,3 +165,20 @@ if __name__ == "__main__":
     # response = await get_current_user(token)
     # res = get_current_user_classic(token)
     # print(res)
+    #$2b$12$cEgVZpjKEu79bo97d.h1muyLfV2U/JqNdslg/T/0cEJwcBvdbyKem
+    # print(get_password_hash("admin111"))
+
+    # username, full_name, email, hashed_password, disabled
+    # register_user = dict()
+    # register_user["username"] = "admin3"
+    # register_user["full_name"] = "Admin User2"
+    # register_user["email"] = "admin2@admin.com"
+    # register_user["hashed_password"] = "$2b$12$hQhRH/casNbFntPFTXn0QOZQ/4PI/krp.kCCS6K0TknXykVualRxm"
+    # register_user["disabled"] = 0
+    # register_user["referral_code"] = "allowed123"
+    # register_user_obj = RegisterUser(**register_user)
+    # print(register_user_obj)
+    # mysqlDB.start_connection()
+    # import asyncio
+    # asyncio.run(add_user(register_user_obj))
+    # mysqlDB.close_connection()

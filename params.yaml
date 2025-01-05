@@ -1,0 +1,9 @@
+mysql:
+    host: sql.freedb.tech
+    port: 3306
+    user: hcCsU1wVNbXZ732QA0uGreuPf/qs4Q4vGna4A52fIEW1LeAaZAAZebdm4TlE9fSw
+    password: HHhN67g0DjiEvz+GCIeFvuZd2nhD0k4rjWdcanLTctw=
+    database: freedb_stock-db
+
+origin:
+    frontend: http://localhost:3000

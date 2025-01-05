@@ -9,14 +9,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Annotated
 
-from Security.OAuth2Security import fake_users_db, User, Token, \
-    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_all_user, add_user, \
-    get_current_active_user, RegisterUser, get_settings
+from Security.OAuth2Security import User, \
+    authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, add_user, \
+    get_current_active_user, RegisterUser, get_settings, mysqlDB
 # from Security.OAuth2Security import
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from src.config.CommonVariables import Token, property_var
+
+# from src.db.MySQLDB import MysqlDB
+
+props = property_var.get_property_data()
+
 origins = [
-    "http://localhost:3000",
+    props["origin"]["frontend"],
     "*"
 ]
 
@@ -183,7 +189,8 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     try:
-        user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+        print("/token endpoint called")
+        user = authenticate_user(form_data.username, form_data.password)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -192,7 +199,7 @@ async def login_for_access_token(
             )
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
+            data={"sub": user["username"]}, expires_delta=access_token_expires
         )
         return Token(access_token=access_token, token_type="bearer")
     except Exception as e:
@@ -210,9 +217,9 @@ async def read_users_me(
 ):
     return current_user
 
-@app.get("/users/all/")
-async def read_users_all():
-    return await get_all_user()
+# @app.get("/users/all/")
+# async def read_users_all():
+#     return await get_all_user()
 
 @app.get("/users/me/items/")
 async def read_own_items(
@@ -232,9 +239,13 @@ async def get_settings_property():
 @app.on_event("startup")
 async def startup_event():
     print("Executing on startup")
+    mysqlDB.start_connection()
+    # res = mysqlDB.get_user_by_username("admin2")
+    # print(res)
     # Perform any necessary setup here
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    mysqlDB.close_connection()
     print("Executing on shutdown")
     # Perform any necessary cleanup here
