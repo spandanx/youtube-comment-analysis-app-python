@@ -1,10 +1,12 @@
 import mysql.connector
 
-from src.config.CommonVariables import RegisterUser, property_var
+from Security.Encryption import AESCipher
+from src.config.CommonVariables import RegisterUser, property_var, get_settings
 # from Security.OAuth2Security import RegisterUser
 from src.config.ExtractProperty import Property
 
 props = property_var.get_property_data()
+encrypter = AESCipher(get_settings().ENCODING_SALT)
 
 class MysqlDB:
 
@@ -12,8 +14,8 @@ class MysqlDB:
         self.cnx = mysql.connector.connect(
             host=props["mysql"]["host"],
             port=props["mysql"]["port"],
-            user=props["mysql"]["user"],
-            password=props["mysql"]["password"],
+            user=encrypter.decrypt(props["mysql"]["user"]),
+            password=encrypter.decrypt(props["mysql"]["password"]),
             database=props["mysql"]["database"]
         )
 

@@ -2,8 +2,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-
-import seaborn as sns
 import pandas as pd
 import spacy
 import re
@@ -12,14 +10,8 @@ import string
 import math
 import numpy as np
 
-# import matplotlib
-# import matplotlib.pyplot as plt
-
-# from YoutubeSearch import YoutubeSearch
-
+spacy.cli.download("en_core_web_sm")
 nlp = spacy.load('en_core_web_sm')
-# data_path = '../data/wine.csv'
-
 
 class KMeansClusterer:
 
