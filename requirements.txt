@@ -20,7 +20,6 @@ matplotlib
 transformers
 spacy
 bert-extractive-summarizer
-torch
 sumy
 pyenchant
 keras
