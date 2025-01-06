@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 # import nltk
 # nltk.download()
+import spacy
+spacy.cli.download("en_core_web_sm")
 
 HYPEN_E_DOT = '-e .'
 def get_requirements(file_path:str):

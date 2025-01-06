@@ -31,4 +31,5 @@ python-dotenv
 python-multipart
 mysql-connector-python
 pycryptodome
+python3-enchant
 -e .
