@@ -4,7 +4,9 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from DataProcessing.Clustering.KMeansClustering import KMeansClusterer
 from DataProcessing.QuestionAnswering.DistilbertQuestionAnswering import DistilbertQuestionAnswering
 from DataProcessing.SentenceCleanser import SentenceCleanser
-from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
+# from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
+# from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
+from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
 from DataProcessing.LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from Security.OAuth2Security import get_settings
 # from Security.OAuth2Security import OAuth2Security
@@ -39,12 +41,12 @@ class YoutubeSearch:
         models = {
             # "Extractive - BertExtractiveSummarizer": BertExtractiveSummarizer(),
             # "Extractive - NLTKSummarizer": NLTKSummarizer(),
-            # "Extractive - SumyLexRankSummarizer": SumyLexRankSummarizer(),
+            "Extractive - SumyLexRankSummarizer": SumyLexRankSummarizer(),
             # "Extractive - SumyLSARankSummarizer": SumyLSARankSummarizer(),
             # "Extractive - SumyLuhnSummarizer": SumyLuhnSummarizer(),
             # "Extractive - SumyTextRankSummarizer": SumyTextRankSummarizer(),
 
-            "Abstractive - BARTAbstractiveSummarizer": BARTAbstractiveSummarizer()
+            # "Abstractive - BARTAbstractiveSummarizer": BARTAbstractiveSummarizer(),
             # "Abstractive - DistilbertSummarizer": DistilbertSummarizer(),
             # "Abstractive - T5BaseSummarizer": T5BaseSummarizer(),
             # "Abstractive - T5SmallSummarizer": T5SmallSummarizer()
@@ -124,6 +126,7 @@ class YoutubeSearch:
                 "nextPageToken": search_keyword["nextPageToken"] if ("nextPageToken" in search_keyword) else None,
                 "prevPageToken": search_keyword["prevPageToken"] if ("prevPageToken" in search_keyword) else None}
 
+
     '''
     Extracts out youtube comments, description and possible question and answer for a given video ID.
     '''
@@ -147,7 +150,8 @@ class YoutubeSearch:
             if (len(filtered_sentence.split(' '))>1):
                 translated_sentence = self.language_processing_model.convert_language_of_text(filtered_sentence) #Translate the description to english
                 cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence) #Remove any special characters in the comments
-                if (len(cleaned_sentence)>1):
+                # print(len(cleaned_sentence.split(' ')))
+                if (len(cleaned_sentence)>1 and len(cleaned_sentence.split(' '))>2):
                     sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence]) #Detects if the comment is a question or a general sentence
                     item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
                     item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
@@ -273,7 +277,7 @@ if __name__ == "__main__":
     #     print(video["title"])
     #     print("\t", video["videoId"])
     #     print("\t", video["description"])
-    # ys = YoutubeSearch()
+    ys = YoutubeSearch()
     # videos = ys.youtube_get_videos('Nature Videos', max_results=10)
     # videos = ys.youtube_get_videos('vgfdxfbhlkhvjfcjhjbhjm', max_results=10)
     # videoIdArray = ['viIpUaC6blY']
@@ -319,13 +323,26 @@ if __name__ == "__main__":
         "8EeX55DLXVw",
         "ZNEGCogvhwo"
     ]
+    videoIdArray = [
+        # "Mtyyd9moDeM",
+        # "7tMEcD0O0lg",
+        # "jojEtcizEMI",
+        # "oQJ7cO4t568",
+        # "fn4_eItzIT0",
+        # "3N4dxGzt6mM",
+        # "k6o2Yv0Pi1k",
+        # "_BxNQpenzNM",
+        # "QnD0Psa8qdE",
+        # "YPb3yfR2ssg",
+        "YPb3yfR2ssg"
+      ]
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
     # result = ys.extract_youtube_comments(videoIdArray, max_results_comments=2, max_results_replies=20)
     # result = {'statements': ['Happy durga puja sir', 'Happy Durga Happy Puja Panchami', 'You probably havent seen Chor Bagan...near. mg metro.. one of finest pandal I bet', 'Dada, wha north Kolkata, another and big Puja visit Will do it, Nav para dada Y Sangha Baranagar. Ehaka thim hei Introduction Look, I guarantee it. ki you like it', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Chorbagan ta top 10 a It would be better to keep it', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'go mom Durga ', 'Jai Maa Durga', 'I say, grandpa, your drone is fine now', 'Patna ka', 'Kharagpur Durga Puja Pandal 2024', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhono dhonne puspe vora. It,s poem on rabindra nath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada ami I am saying Shubojit Paul contact a basket ki lures', 'go mom Durga Jai maa Durga ', 'Jay eye di '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja']}
-    # result = {'statements': ['Happy durga puja sir', 'Happy Durga Puja Happy Panchami', 'You may not have seen Chor Bagan...Near Metro...One of the Finest Pandal Bet', 'Dada, you from North Kolkata, will visit another big Puja, now for Dada or Sangha Baranagar. This is the Introduction that I guarantee you will be impressed by the time you watch it.', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Those who keep Chorbagans top 10', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Jai maa Durga ', 'Jai Maa Durga . Har Har Mahadev ', 'Bhai background music download from Katha', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhone dhonne puspe vora. Its poem on rabindranath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada I am Shubhjit Paul saying how to contact', 'Jai maa Durga Jai maa Durga ', 'Jay eyes on '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata In North kolkata it will mainly take place near hedua park or beadon street 15 20 minutes from hatibagan star theatre but I dont know the way of south kolkata procession please find or search the place where it will take place exactly and do the vlog thank u ...', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata .. thank u ...']}
+    result = {'statements': ['Happy durga puja sir', 'Happy Durga Puja Happy Panchami', 'You may not have seen Chor Bagan...Near Metro...One of the Finest Pandal Bet', 'Dada, you from North Kolkata, will visit another big Puja, now for Dada or Sangha Baranagar. This is the Introduction that I guarantee you will be impressed by the time you watch it.', 'Coming to kolkata on 5th oct, kindly guide us which pandal to visit.. as its last day', 'Those who keep Chorbagans top 10', 'Durga Puja video ', '', 'Kalyani, West Bengal, Nadia district', 'Jai maa Durga ', 'Jai Maa Durga . Har Har Mahadev ', 'Bhai background music download from Katha', 'Hope You Enjoyed The Video Add Me on Social Media Instagram', 'Dhone dhonne puspe vora. Its poem on rabindranath thakur.', 'Thanks for watching Add Me on Social Media Instagram', 'Jay maa durga ', 'Dada I am Shubhjit Paul saying how to contact', 'Jai maa Durga Jai maa Durga ', 'Jay eyes on '], 'questions': ['Wishing You Happy Durga Puja', 'Watch my Top 5 Best Durga Puja', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata In North kolkata it will mainly take place near hedua park or beadon street 15 20 minutes from hatibagan star theatre but I dont know the way of south kolkata procession please find or search the place where it will take place exactly and do the vlog thank u ...', 'helo please make the beautiful procession of maa durga immersion on the streets of kolkata this year on 12 13 and 14 october both north and south kolkata .. thank u ...']}
     # print(result)
     # print(ys.get_summarizer_model_list())
-    # summary = ys.summarize_comments(result["statements"], "Abstractive - DistilbertSummarizer")
+    # summary = ys.summarize_comments(result["statements"], "Abstractive - T5SmallSummarizer")
     # for smm in summary:
     #     print(smm)
 
@@ -339,9 +356,9 @@ if __name__ == "__main__":
     # questions = []
     ys = YoutubeSearch()
     # videos = ys.youtube_get_videos_by_token(token, max_results)
-    extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
-    print(extracted_texts)
-    x = "a"
+    # extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
+    # print(extracted_texts)
+    # x = "a"
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
     # print(comments)
     # wrapped_text = WrapText.wrapText(statements)
@@ -359,6 +376,15 @@ if __name__ == "__main__":
 
     # for line in transcript:
     #     print(line)
-
+    cleaned_sentence = [
+        "Original Voice ",
+        "What year did Dell announce its plans to buy its building?",
+        "Original Voice"
+    ]
+    # asasa = ys.remove_spaces("Original Voice ")
+    # print(asasa)
+    # print(len(asasa.split(' ')))
+    # sentence_type = ys.lstm_load.predict_sentence_array(cleaned_sentence)
+    # print(sentence_type)
 #Summarize text
 # Extract answers for the questions.

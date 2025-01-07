@@ -24,7 +24,7 @@ elif source_file_name == "ExtractProperty.py":
 elif source_file_name == "main.py":
     filePath = "params.yaml"
 else:
-    filePath = "../../params.yaml"
+    filePath = "params.yaml"
 
 
 class Property:

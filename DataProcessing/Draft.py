@@ -1,13 +1,13 @@
-from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
-from DataProcessing.TextSummarization.Abstractive.DistilbertSummarizer import DistilbertSummarizer
-from DataProcessing.TextSummarization.Abstractive.T5BaseSummarizer import T5BaseSummarizer
+# from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
+# from DataProcessing.TextSummarization.Abstractive.DistilbertSummarizer import DistilbertSummarizer
+# from DataProcessing.TextSummarization.Abstractive.T5BaseSummarizer import T5BaseSummarizer
 from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
-from DataProcessing.TextSummarization.Extractive.BertExtractiveSummarizer import BertExtractiveSummarizer
-from DataProcessing.TextSummarization.Extractive.NLTKSummarizer import NLTKSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLSASummarizer import SumyLSARankSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyLuhnSummarizer import SumyLuhnSummarizer
-from DataProcessing.TextSummarization.Extractive.SumyTextRankSummarizer import SumyTextRankSummarizer
+# from DataProcessing.TextSummarization.Extractive.BertExtractiveSummarizer import BertExtractiveSummarizer
+# from DataProcessing.TextSummarization.Extractive.NLTKSummarizer import NLTKSummarizer
+# from DataProcessing.TextSummarization.Extractive.SumyLSASummarizer import SumyLSARankSummarizer
+# from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
+# from DataProcessing.TextSummarization.Extractive.SumyLuhnSummarizer import SumyLuhnSummarizer
+# from DataProcessing.TextSummarization.Extractive.SumyTextRankSummarizer import SumyTextRankSummarizer
 from time import time
 
 if __name__ == "__main__":
@@ -28,10 +28,9 @@ if __name__ == "__main__":
     # bertExtractiveSummarizer = BertExtractiveSummarizer()
     # bartAbstractiveSummarizer = BARTAbstractiveSummarizer()
     # t5BaseSummarizer = T5BaseSummarizer()
-    # t5SmallSummarizer = T5SmallSummarizer()
+    t5SmallSummarizer = T5SmallSummarizer()
 
     # print(distilbertSummarizer.summarizeText(sentences[0]))
-    a = "as"
     models = [
                 # ["ts", ts],
                 # ["bertExtractiveSummarizer", bertExtractiveSummarizer],
@@ -44,7 +43,7 @@ if __name__ == "__main__":
                 # ["bartAbstractiveSummarizer", bartAbstractiveSummarizer],
                 # ["distilbertSummarizer", distilbertSummarizer],
                 # ["t5BaseSummarizer", t5BaseSummarizer],
-                # ["t5SmallSummarizer", t5SmallSummarizer]
+                ["t5SmallSummarizer", t5SmallSummarizer]
              ]
     summary_map = {}
     for model_name, model in models:

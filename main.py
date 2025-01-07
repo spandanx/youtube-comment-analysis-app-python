@@ -239,7 +239,7 @@ async def get_settings_property():
 @app.on_event("startup")
 async def startup_event():
     print("Executing on startup")
-    mysqlDB.start_connection()
+    # mysqlDB.start_connection()
     # res = mysqlDB.get_user_by_username("admin2")
     # print(res)
     # Perform any necessary setup here

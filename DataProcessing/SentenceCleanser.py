@@ -9,12 +9,14 @@ class SentenceCleanser:
         text = re.sub('https?://\S+', '', text) # remove links
         text = re.sub('@@\S+', '', text) #remove mentions
         text = re.sub(' +', ' ', text)
+        text = " ".join(text.split())
         return text
 
     def remove_special_chars(self, text):
         text = re.sub('[^A-Za-z0-9,.?! ]+', '', text)
         text = re.sub(' +,*', ' ', text)
         text = re.sub(' +', ' ', text)
+        text = " ".join(text.split())
         return text
 
 if __name__ == "__main__":

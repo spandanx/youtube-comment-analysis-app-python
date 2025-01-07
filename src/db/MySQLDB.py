@@ -18,10 +18,11 @@ class MysqlDB:
             password=encrypter.decrypt(props["mysql"]["password"]),
             database=props["mysql"]["database"]
         )
-
-    def start_connection(self):
-        print("Called MysqlDB.start_connection()")
         self.cur = self.cnx.cursor()
+
+    def reestablish_connection(self):
+        print("Called MysqlDB.start_connection()")
+        self.cnx.reconnect()
 
     def enrich_user_result(self, columns, result_array):
         result = []
@@ -37,7 +38,8 @@ class MysqlDB:
         if self.cnx.is_connected():
             print("MySQL Connection is active")
         else:
-            self.start_connection()
+            # self.start_connection()
+            self.reestablish_connection()
             print("MySQL Connection is not active")
         self.cur.execute("SELECT * FROM yt_comm_user where username = %s", (username, ))
         desc = self.cur.description

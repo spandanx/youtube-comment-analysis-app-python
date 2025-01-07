@@ -93,6 +93,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         detail="Token is expired!",
         headers={"WWW-Authenticate": "Bearer", "REASON": "TOKEN_EXPIRED"},
     )
+    db_connection_exception = HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Token is expired!",
+        headers={"WWW-Authenticate": "Bearer", "REASON": "DATABASE_ERROR"},
+    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         print(payload)
@@ -107,7 +112,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise token_expired_exception
     except InvalidTokenError:
         raise credentials_exception
+    # try:
     user = get_user(username=token_data.username)
+    # except Exception as e:
+    #     print(e)
     print(user)
     if user is None:
         raise credentials_exception
