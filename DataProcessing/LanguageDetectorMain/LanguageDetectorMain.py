@@ -1,16 +1,18 @@
 from time import time
-import enchant
+# import enchant
 
 from DataProcessing.CharacterLanguageGeneraterDetecter.LanguageCharacterDetector import LanguageCharacterDetector
 from Drafts.IndicTransliterationStandBy.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
 from DataProcessing.LanguageTranslation.IndicToEnglishTranslation import IndicToEngTranslator
 
-d = enchant.Dict("en_US")
+# d = enchant.Dict("en_US")
 # import nltk
 # nltk.download()
-from nltk.corpus import words
-nltk_words = set(words.words())
-text_path = "C:\\Users\\spand\\OneDrive\\Documents\\Sample_english_text.txt"
+if __name__ == "__main__":
+    word_set_file_name = '../../data/english_word_set/english_word_set.txt'
+else:
+    word_set_file_name = './data/english_word_set/english_word_set.txt'
+
 
 class LanguageDetectorMain:
 
@@ -20,6 +22,13 @@ class LanguageDetectorMain:
         self.language_character_detector = LanguageCharacterDetector()
         self.transliteration_object = TransliterationIndicLatin2Native()
         self.language_translation_object = IndicToEngTranslator()
+        self.nltk_words = self.read_word_set(word_set_file_name)
+
+    def read_word_set(self, word_set_file_name):
+        with open(word_set_file_name, 'r') as f:
+            set_string = f.read()
+            read_set = eval(set_string)
+            return read_set
 
     def transliterate_word(self, word_desc_map, word, trans_object):
         meaning_lang = word_desc_map["meaning_lang"]
@@ -89,7 +98,8 @@ class LanguageDetectorMain:
             current_word = {
                 "word": word
             }
-            if d.check(word):
+            # if d.check(word):
+            if word in self.nltk_words:
                 # print("Present - ", word)
                 current_word.update({"letter_lang": "eng", "meaning_lang": "eng", "confidence": 100.0})
                 if (len(indic_words_native) > 0):
@@ -145,11 +155,11 @@ class LanguageDetectorMain:
         # if string in nltk_words:
         #     nltk_wordset.add(string)
 if __name__ == "__main__":
-    file = open(text_path, "r")
-    content = file.read()
-    file.close()
-
-    lines = content.split('\n')
+    # file = open(text_path, "r")
+    # content = file.read()
+    # file.close()
+    #
+    # lines = content.split('\n')
 
     t = time()
 

@@ -1,6 +1,4 @@
 from setuptools import setup, find_packages
-# import nltk
-# nltk.download()
 
 
 HYPEN_E_DOT = '-e .'

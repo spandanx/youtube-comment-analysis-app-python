@@ -21,7 +21,6 @@ transformers
 spacy
 bert-extractive-summarizer
 sumy
-pyenchant
 keras
 tensorflow-gpu==2.10.0
 PyJWT
@@ -31,5 +30,4 @@ python-dotenv
 python-multipart
 mysql-connector-python
 pycryptodome
-pyenchant==3.2.2
 -e .
