@@ -7,5 +7,6 @@
     <orderEntry type="jdk" jdkName="ml_cuda" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Practice" />
+    <orderEntry type="module" module-name="StockAPI-backend-python" />
   </component>
 </module>

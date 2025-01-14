@@ -1,9 +1,9 @@
 mysql:
-    host: sql.freedb.tech
-    port: 3306
-    user: hcCsU1wVNbXZ732QA0uGreuPf/qs4Q4vGna4A52fIEW1LeAaZAAZebdm4TlE9fSw
-    password: HHhN67g0DjiEvz+GCIeFvuZd2nhD0k4rjWdcanLTctw=
-    database: freedb_stock-db
+    host: 34.29.130.158
+    port: 3334
+    user: ngqbR2N4miKvHuXoQydmodlfYmjjOl1xLCvCJxwc+Y4=
+    password: /VIzexSn6/wHiguCOVUOTqFS+zcCwsNMygGU7xHY2YM=
+    database: stock_db
 
 origin:
     frontend: http://localhost:3000

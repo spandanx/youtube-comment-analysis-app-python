@@ -30,7 +30,7 @@ class AESCipher(object):
 
 if __name__ == "__main__":
     key = "#SalTy89*"
-    string_value = "freedb_stock-db-x1"
+    string_value = "eaSy*__pp"
     aESCipher = AESCipher(key)
     encrypted_text = aESCipher.encrypt(string_value)
     print("encrypted_text", encrypted_text)
