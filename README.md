@@ -7,8 +7,7 @@ This a web application that can combine multiple youtube content and give a summ
  - Get possible question and answers
  - Login with Oauth authentication
 
-<details>
-   <summary>Application Snap Shots</summary>
+## Application Snap Shots
   <p>LoginPage</p>
   <img src="https://github.com/user-attachments/assets/eedfea3b-9f27-40c8-a8ae-658d2b34d248" width=50% height=50%>
   <p>RegistrationPage</p>
@@ -24,7 +23,6 @@ This a web application that can combine multiple youtube content and give a summ
   <p>QuestionList</p>
   <img src="https://github.com/user-attachments/assets/be73f57e-fd68-49bf-8637-fbb140f24a45" width=50% height=50%>
 
-</details>
 	
 ## Technologies used
 
