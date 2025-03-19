@@ -16,9 +16,9 @@ class RAG:
                                            model_kwargs={'device': 'cpu'})
         self.llm = OllamaLLM(model=llama_model)
 
-    def create_vector_qdrant(self, text_array, collection_name):
+    def ingest_vector(self, text_array, collection_name):
 
-        doc_array = [Document(page_content=txt, metadata={"source": "webpage1", "date": "2024-01-01"}) for txt in text_array]
+        doc_array = [Document(page_content=txt["text"], metadata=txt["metadata"]) for txt in text_array]
         # embedding choice here is all-MiniLM-L6-v2, based on your hardware you can choose smaller size one or bigger size one.
 
         # client.delete_collection(collection_name=collection_name)  # if document exist delete it
@@ -31,7 +31,7 @@ class RAG:
         )
         print("Inserted")
 
-    def answer_question(self, question, collection_name):
+    def answer_question(self, question, context, collection_name):
 
         qDrant_vector = QdrantVectorStore.from_existing_collection(collection_name=collection_name, url=self.qdrant_url,
                                                                    embedding=self.embeddings)
@@ -106,3 +106,9 @@ if __name__ == "__main__":
     embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
     llama_model = "llama3.2:1b"
     rag = RAG(qdrant_url=qdrant_url, embedding_model=embedding_model, llama_model = llama_model)
+    texts = [
+    {"text": 'I am from West Bengal U where?', "metadata":{'comment_id': 'UgxBMicJBMOynhGwioZ4AaABAg', 'reply_id': 'UgxBMicJBMOynhGwioZ4AaABAg.9TOYLFo88e29TS9FPoLcZI', 'type': 'reply', 'video_id': 'YPb3yfR2ssg'}},
+    {"text":'No this voice like Atatrk', "metadata":{'comment_id': 'UgxBMicJBMOynhGwioZ4AaABAg', 'reply_id': 'UgxBMicJBMOynhGwioZ4AaABAg.9TOYLFo88e29TWSIWWfkhk', 'type': 'reply', 'video_id': 'YPb3yfR2ssg'}}
+    ]
+
+    rag.ingest_vector(texts, collection_name="test_collection_7")

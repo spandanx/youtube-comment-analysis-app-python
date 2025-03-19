@@ -27,6 +27,9 @@ YOUTUBE_API_VERSION = "v3"
 class YoutubeSearch:
 
     def __init__(self, props):
+        self.props = props
+        self.rag = RAG(qdrant_url=props["qdrant"]["url"], embedding_model=props["llama"]["embedding_model"],
+                       llama_model=props["llama"]["llama_model"])
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
         # self.text_summarizer = TextSummarization.TextSummarizer()
@@ -37,7 +40,6 @@ class YoutubeSearch:
         # self.oAuth2Security = OAuth2Security()
         self.youtube_object = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                                developerKey=get_settings().YOUTUBE_DEVELOPER_KEY)
-        self.rag = RAG(qdrant_url=props["qdrant"]["url"], embedding_model=props["llama"]["embedding_model"], llama_model=props["llama"]["llama_model"])
 
     def initialize_summarizer_models(self):
         models = {
@@ -165,7 +167,8 @@ class YoutubeSearch:
                     elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
                         questions.append(cleaned_sentence)
 
-                    texts.append({"text":cleaned_sentence, "video_id": video_id, "comment_id": item['id'], "reply_id": "", "type": "comment"})
+                    texts.append({"text": cleaned_sentence, "metadata": {"video_id": video_id, "comment_id": item['id'],
+                                                                        "reply_id": "", "type": "comment"}})
 
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
@@ -215,8 +218,8 @@ class YoutubeSearch:
                     statements.append(each_reply_text)
                 elif (reply["snippet"]["sentenceType"] == 'question'):
                     questions.append(each_reply_text)
-                texts.append({"text": each_reply_text, "video_id": video_id, "comment_id": comment_id,
-                                  "reply_id": reply['id'], "type": "reply"})
+                texts.append({"text": each_reply_text, "metadata": {"video_id": video_id, "comment_id": comment_id,
+                                  "reply_id": reply['id'], "type": "reply"}})
             replies.extend(reply_list)
             request = service.comments().list_next(request, response) #Fetch the next set of comments
 
@@ -239,14 +242,19 @@ class YoutubeSearch:
     '''
     Extracts out youtube comments, description and possible question and answers for a give video ID array.
     '''
-    def extract_youtube_comments(self, videoIdArray, max_results_comments, max_results_replies):
+    def extract_youtube_comments(self, videoIdArray, username, max_results_comments, max_results_replies):
         classifier = SentenceTypeDetection.getClassifier()
         statements = []
         questions = []
+        texts = []
         for videoId in videoIdArray:
             print("Processed video - ", videoId)
-            self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
-                                           classifier=classifier, max_results_replies=max_results_replies)
+            texts.extend(self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
+                                           classifier=classifier, max_results_replies=max_results_replies))
+        print("TEXTS")
+        print(texts)
+        collection_name = self.props["qdrant"]["collection_prefix"] + username
+        self.rag.ingest_vector(texts, collection_name)
         return {"statements": statements, "questions": questions}
 
     def summarize_comments(self, statements, summarizer_model_name):
@@ -263,12 +271,13 @@ class YoutubeSearch:
             summary.append(model.summarizeText(joined_texts))
         return {"summary": summary}
 
-    def answer_questions(self, questions, context, qa_model_name):
+    def answer_questions(self, questions, context, qa_model_name, username):
         if qa_model_name not in self.ques_ans_model_map:
             raise Exception("Question Answering Model not found!")
+        collection_name = self.props["qdrant"]["collection_prefix"] + username
         model = self.ques_ans_model_map[qa_model_name]
         context_joined = '. '.join(context)
-        answered_questions = [{"question": ques, "answer": model.answer_question(question=ques, context=context_joined)} for ques in filter(lambda ques: len(ques) > 0, questions)]
+        answered_questions = [{"question": ques, "answer": model.answer_question(question=ques, context=context_joined, collection_name=collection_name)} for ques in filter(lambda ques: len(ques) > 0, questions)]
         return answered_questions
 
 

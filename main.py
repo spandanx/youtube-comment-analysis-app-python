@@ -31,11 +31,13 @@ class Sentence(BaseModel):
 
 class VideoIds(BaseModel):
     ids: List[str]
+    username: str
 
 class QuesAnsDType(BaseModel):
     context: List[str]
     questions: List[str]
     qaModel: str
+    username: str
 
 class SummarizationDType(BaseModel):
     texts: List[str]
@@ -104,7 +106,7 @@ async def get_video(current_user: Annotated[User, Depends(get_current_active_use
 async def extract_comments(current_user: Annotated[User, Depends(get_current_active_user)],
                            videoIds: VideoIds):
     try:
-        response = ys.extract_youtube_comments_enhanced(videoIds.ids, max_results_comments = 10, max_results_replies = 20)
+        response = ys.extract_youtube_comments(videoIds.ids, videoIds.username, max_results_comments = 10, max_results_replies = 20)
         return response
 
     except Exception as e:
@@ -165,7 +167,7 @@ async def get_question_answering_model(current_user: Annotated[User, Depends(get
 async def answer_questions(current_user: Annotated[User, Depends(get_current_active_user)],
                            quesAnsDType: QuesAnsDType):
     try:
-        return ys.answer_questions(quesAnsDType.questions, quesAnsDType.context, quesAnsDType.qaModel)
+        return ys.answer_questions(quesAnsDType.questions, quesAnsDType.context, quesAnsDType.qaModel, quesAnsDType.username)
 
     except Exception as e:
         print('Something went wrong')

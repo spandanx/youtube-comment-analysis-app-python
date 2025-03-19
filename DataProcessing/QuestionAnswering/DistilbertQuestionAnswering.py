@@ -4,7 +4,7 @@ class DistilbertQuestionAnswering:
     def __init__(self):
         self.question_answerer = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
-    def answer_question(self, question, context):
+    def answer_question(self, question, context, collection_name):
         return self.question_answerer(question=question, context=context)
 
 

@@ -11,6 +11,7 @@ origin:
 
 qdrant:
     url: http://180.188.226.161:6333
+    collection_prefix: yt_collection_
 
 llama:
     embedding_model: sentence-transformers/all-MiniLM-L6-v2
