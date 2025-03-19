@@ -1,5 +1,7 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: YouTubeCommentSummarizationApp
 Version: 0.0.1
 Author: Spandan Maity
 Author-email: spandanmaity58@gmail.com
+Dynamic: author
+Dynamic: author-email

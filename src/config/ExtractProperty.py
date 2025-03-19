@@ -19,6 +19,8 @@ print(source_file_name)
 
 if source_file_name == "OAuth2Security.py":
     filePath = "../params.yaml"
+if source_file_name == "YoutubeSearch.py":
+    filePath = "params.yaml"
 elif source_file_name == "ExtractProperty.py":
     filePath = "../../params.yaml"
 elif source_file_name == "main.py":

@@ -356,8 +356,8 @@ if __name__ == "__main__":
     # questions = []
     ys = YoutubeSearch()
     # videos = ys.youtube_get_videos_by_token(token, max_results)
-    # extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
-    # print(extracted_texts)
+    extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 10, max_results_replies = 20)
+    print(extracted_texts)
     # x = "a"
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
     # print(comments)

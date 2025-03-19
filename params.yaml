@@ -1,5 +1,6 @@
 mysql:
-    host: 34.29.130.158
+#    host: 34.29.130.158
+    host: 180.188.226.161
     port: 3334
     user: ngqbR2N4miKvHuXoQydmodlfYmjjOl1xLCvCJxwc+Y4=
     password: /VIzexSn6/wHiguCOVUOTqFS+zcCwsNMygGU7xHY2YM=

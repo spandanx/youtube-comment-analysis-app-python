@@ -3,7 +3,7 @@ from typing import List
 from fastapi import FastAPI, Request, HTTPException, status, Depends
 from pydantic import BaseModel
 
-from YoutubeSearch import YoutubeSearch
+from research.YoutubeSearch import YoutubeSearch
 # from DataProcessing.TextSummarization import TextSummarizer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,7 +11,7 @@ from typing import Annotated
 
 from Security.OAuth2Security import User, \
     authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, add_user, \
-    get_current_active_user, RegisterUser, get_settings, mysqlDB
+    get_current_active_user, RegisterUser, mysqlDB
 # from Security.OAuth2Security import
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
@@ -66,6 +66,10 @@ async def root(token: Annotated[str, Depends(oauth2_scheme)]):
 async def healthcheck(current_user: Annotated[User, Depends(get_current_active_user)]):
     return {"message": "I am Alive!"}
 
+@app.get("/healthcheck-public")
+async def healthcheck_public():
+    return {"message": "I am Alive - Public Healthcheck!"}
+
 @app.post("/check-sentence/")
 async def get_sentence_type(sentence: Sentence):
     return SentenceTypeDetection.TestSentenceDetectionModel(sentence.text)
@@ -100,7 +104,7 @@ async def get_video(current_user: Annotated[User, Depends(get_current_active_use
 async def extract_comments(current_user: Annotated[User, Depends(get_current_active_user)],
                            videoIds: VideoIds):
     try:
-        response = ys.extract_youtube_comments(videoIds.ids, max_results_comments = 2, max_results_replies = 20)
+        response = ys.extract_youtube_comments_enhanced(videoIds.ids, max_results_comments = 10, max_results_replies = 20)
         return response
 
     except Exception as e:
@@ -231,10 +235,10 @@ async def read_own_items(
 async def register_user(user: RegisterUser):
     return await add_user(user)
 
-@app.get("/settings/")
-async def get_settings_property():
-    settings = dict(get_settings())
-    return settings
+# @app.get("/settings/")
+# async def get_settings_property():
+#     settings = dict(get_settings())
+#     return settings
 
 @app.on_event("startup")
 async def startup_event():

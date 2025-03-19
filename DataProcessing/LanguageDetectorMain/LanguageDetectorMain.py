@@ -2,7 +2,7 @@ from time import time
 # import enchant
 
 from DataProcessing.CharacterLanguageGeneraterDetecter.LanguageCharacterDetector import LanguageCharacterDetector
-from Drafts.IndicTransliterationStandBy.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
+from research.IndicTransliterationStandBy.TransliterationIndicLatin2Native import TransliterationIndicLatin2Native
 from DataProcessing.LanguageTranslation.IndicToEnglishTranslation import IndicToEngTranslator
 
 # d = enchant.Dict("en_US")
