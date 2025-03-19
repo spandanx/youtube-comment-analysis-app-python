@@ -3,7 +3,7 @@ from typing import List
 from fastapi import FastAPI, Request, HTTPException, status, Depends
 from pydantic import BaseModel
 
-from research.YoutubeSearch import YoutubeSearch
+from YoutubeSearch import YoutubeSearch
 # from DataProcessing.TextSummarization import TextSummarizer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -56,7 +56,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
 
-ys = YoutubeSearch()
+ys = YoutubeSearch(props)
 
 @app.get("/healthcheck-draft")
 async def root(token: Annotated[str, Depends(oauth2_scheme)]):

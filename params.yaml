@@ -8,3 +8,10 @@ mysql:
 
 origin:
     frontend: http://localhost:3000
+
+qdrant:
+    url: http://180.188.226.161:6333
+
+llama:
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2
+    llama_model: llama3.2:1b

@@ -8,6 +8,7 @@ from DataProcessing.SentenceCleanser import SentenceCleanser
 # from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
 from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
 from DataProcessing.LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
+from RAG.RAGIngestRetrieve import RAG
 from Security.OAuth2Security import get_settings
 # from Security.OAuth2Security import OAuth2Security
 from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
@@ -25,7 +26,7 @@ YOUTUBE_API_VERSION = "v3"
 
 class YoutubeSearch:
 
-    def __init__(self):
+    def __init__(self, props):
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
         # self.text_summarizer = TextSummarization.TextSummarizer()
@@ -36,12 +37,14 @@ class YoutubeSearch:
         # self.oAuth2Security = OAuth2Security()
         self.youtube_object = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                                developerKey=get_settings().YOUTUBE_DEVELOPER_KEY)
+        self.rag = RAG(qdrant_url=props["qdrant"]["url"], embedding_model=props["llama"]["embedding_model"], llama_model=props["llama"]["llama_model"])
 
     def initialize_summarizer_models(self):
         models = {
             # "Extractive - BertExtractiveSummarizer": BertExtractiveSummarizer(),
             # "Extractive - NLTKSummarizer": NLTKSummarizer(),
             "Extractive - SumyLexRankSummarizer": SumyLexRankSummarizer(),
+            "Generative - Llama3-RAG": self.rag,
             # "Extractive - SumyLSARankSummarizer": SumyLSARankSummarizer(),
             # "Extractive - SumyLuhnSummarizer": SumyLuhnSummarizer(),
             # "Extractive - SumyTextRankSummarizer": SumyTextRankSummarizer(),
@@ -55,7 +58,8 @@ class YoutubeSearch:
 
     def initialize_question_answering_models(self):
         models = {
-            "DistilbertQuestionAnswering": DistilbertQuestionAnswering()
+            "DistilbertQuestionAnswering": DistilbertQuestionAnswering(),
+            "Generative - Llama3": self.rag
         }
         return models
 
