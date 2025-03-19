@@ -4,7 +4,8 @@ from langchain.chains.llm import LLMChain
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
-from langchain.embeddings import HuggingFaceEmbeddings
+# from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 qdrant_url = "http://180.188.226.161:6333"
 collection_name = "test_collection_doc_6"
@@ -78,6 +79,7 @@ def answer_question(question):
 
 if __name__ == '__main__':
     # question = "What the document is about?"
-    question = "I am from which location?"
+    # question = "I am from which location?"
+    question = "What people are saying about the topic?"
     res = answer_question(question)
     print(res)

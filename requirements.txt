@@ -4,16 +4,15 @@ seaborn
 matplotlib
 nltk
 gensim
-googletrans==4.0.0-rc1
+#googletrans==4.0.0-rc1
+googletrans-py
+sentence-transformers
 scipy==1.10.1
 apiclient
 fastapi
 uvicorn
-apiclient
 google-api-python-client
 youtube_transcript_api
-pandas
-nltk
 scikit-learn
 numpy
 matplotlib
@@ -31,6 +30,9 @@ python-multipart
 mysql-connector-python
 pycryptodome
 apiclient
-protobuf==3.16.0
+langchain-qdrant
+langchain_ollama
+langchain
+langchain-community
 
 -e .

@@ -4,7 +4,7 @@ from langchain.vectorstores import Qdrant  # vector database
 from qdrant_client import QdrantClient
 from langchain.llms import CTransformers  # to get llm
 from langchain.text_splitter import RecursiveCharacterTextSplitter  # splitting text into chunks
-from langchain.chains import RetrievalQA  # building Retrieval chain
+from langchain.chains import RetrievalQA  # building RAGRetrieval chain
 from langchain.document_loaders import PyPDFLoader, UnstructuredURLLoader  # to read pdfs, urls
 # from langchain_community.llms import OpenLLM
 from langchain_ollama import OllamaLLM
@@ -28,7 +28,7 @@ collection_name = "test_collection_5"
 
 def create_vector_qdrant():
     # get the documents in langchain format
-    # loader = PyPDFLoader("../data/Retrieval-Augmented-Generation-for-NLP.pdf")
+    # loader = PyPDFLoader("../data/RAGRetrieval-Augmented-Generation-for-NLP.pdf")
     # documents = loader.load()
     # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     # texts = text_splitter.split_documents(documents)

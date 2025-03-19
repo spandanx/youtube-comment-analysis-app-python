@@ -6,7 +6,7 @@ from langchain.vectorstores import Qdrant  # vector database
 from qdrant_client import QdrantClient
 from langchain.llms import CTransformers  # to get llm
 from langchain.text_splitter import RecursiveCharacterTextSplitter  # splitting text into chunks
-from langchain.chains import RetrievalQA  # building Retrieval chain
+from langchain.chains import RetrievalQA  # building RAGRetrieval chain
 from langchain.document_loaders import PyPDFLoader, UnstructuredURLLoader  # to read pdfs, urls
 # from langchain_community.llms import OpenLLM
 from langchain_ollama import OllamaLLM

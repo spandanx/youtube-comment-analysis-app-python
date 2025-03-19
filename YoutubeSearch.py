@@ -132,7 +132,8 @@ class YoutubeSearch:
     '''
     def youtube_get_comments(self, video_id, max_results, statements, questions, classifier, max_results_replies):
 
-        comments = []
+        # comments = []
+        texts = []
         try:
             # Fetchin all the comments
             comment_objects = self.youtube_object.commentThreads().list(part="id,snippet,replies",
@@ -140,7 +141,7 @@ class YoutubeSearch:
             results = comment_objects.get("items", [])
         except Exception as e:
             print(e)
-            return comments
+            return texts
 
         for item in results: #Iterating over the comments
             # comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
@@ -160,22 +161,22 @@ class YoutubeSearch:
                     elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"]=='question'):
                         questions.append(cleaned_sentence)
 
-                    comments.append(cleaned_sentence)
+                    texts.append({"text":cleaned_sentence, "video_id": video_id, "comment_id": item['id'], "reply_id": "", "type": "comment"})
 
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             if replies is not None and reply_count != len(replies['comments']):
                 #Extract replies of the comment
-                replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], statements, questions, classifier, max_results_replies)
+                replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], video_id, statements, questions, classifier, reply_count, texts)
 
-        print("Comments:\n", "\n".join(comments), "\n")
+        # print("texts:\n", "\n".join(texts), "\n")
         print("Questions:\n", "\n".join(questions), "\n")
-        return comments
+        return texts
 
     '''
     max_results should be multiple of 10
     '''
-    def get_comment_replies(self, service, comment_id, statements, questions, classifier, max_results_replies):
+    def get_comment_replies(self, service, comment_id, video_id, statements, questions, classifier, max_results_replies, texts):
         default_size = 10
         request = service.comments().list(
             parentId = comment_id,
@@ -210,6 +211,8 @@ class YoutubeSearch:
                     statements.append(each_reply_text)
                 elif (reply["snippet"]["sentenceType"] == 'question'):
                     questions.append(each_reply_text)
+                texts.append({"text": each_reply_text, "video_id": video_id, "comment_id": comment_id,
+                                  "reply_id": reply['id'], "type": "reply"})
             replies.extend(reply_list)
             request = service.comments().list_next(request, response) #Fetch the next set of comments
 
