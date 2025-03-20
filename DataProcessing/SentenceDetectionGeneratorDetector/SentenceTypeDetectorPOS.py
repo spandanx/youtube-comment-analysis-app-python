@@ -113,7 +113,7 @@ class SentenceTypeDetectorPOS:
     def convert_sentence(self, sentence, min_len):
         pos_tag_list = sorted(list(self.pos_tags))
         pos_tag_map = {(pos_tag_list[i]): (i) for i in range(len(pos_tag_list))}
-        print(pos_tag_map)
+        # print(pos_tag_map)
         truncated_pos_sentence = self.s_detection_manual.truncate_sentence_pos(sentence, min_len)
         return [pos_tag_map[ps] for ps in truncated_pos_sentence]
 

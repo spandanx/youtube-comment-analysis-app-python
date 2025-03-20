@@ -15,6 +15,11 @@ from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetect
 from DataProcessing import WrapText
 from DataProcessing.SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
 
+import nltk
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('wordnet')
+nltk.download('stopwords')
+
 # DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
@@ -46,7 +51,7 @@ class YoutubeSearch:
             # "Extractive - BertExtractiveSummarizer": BertExtractiveSummarizer(),
             # "Extractive - NLTKSummarizer": NLTKSummarizer(),
             "Extractive - SumyLexRankSummarizer": SumyLexRankSummarizer(),
-            "Generative - Llama3-RAG": self.rag,
+            "Generative - Llama3": self.rag,
             # "Extractive - SumyLSARankSummarizer": SumyLSARankSummarizer(),
             # "Extractive - SumyLuhnSummarizer": SumyLuhnSummarizer(),
             # "Extractive - SumyTextRankSummarizer": SumyTextRankSummarizer(),
@@ -61,7 +66,7 @@ class YoutubeSearch:
     def initialize_question_answering_models(self):
         models = {
             "DistilbertQuestionAnswering": DistilbertQuestionAnswering(),
-            "Generative - Llama3": self.rag
+            "Generative - Llama3-RAG": self.rag
         }
         return models
 
@@ -172,9 +177,10 @@ class YoutubeSearch:
 
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
+            print("Video ID", item['id'], " Reply Count", reply_count)
             if replies is not None and reply_count != len(replies['comments']):
                 #Extract replies of the comment
-                replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], video_id, statements, questions, classifier, reply_count, texts)
+                replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], video_id, statements, questions, classifier, min(reply_count, 20), texts)
 
         # print("texts:\n", "\n".join(texts), "\n")
         print("Questions:\n", "\n".join(questions), "\n")
@@ -255,20 +261,21 @@ class YoutubeSearch:
         print(texts)
         collection_name = self.props["qdrant"]["collection_prefix"] + username
         self.rag.ingest_vector(texts, collection_name)
-        return {"statements": statements, "questions": questions}
+        return {"statements": statements, "questions": questions, "texts": [txt["text"] for txt in texts]}
 
     def summarize_comments(self, statements, summarizer_model_name):
         if summarizer_model_name not in self.summarizer_model_map:
             raise Exception("Summarizer Model not found!")
         model = self.summarizer_model_map[summarizer_model_name]
         #Clusterize comments, replies and description
-        clustered_texts = self.kmeansClusterer.clusterize_texts(statements)
+        # clustered_texts = self.kmeansClusterer.clusterize_texts(statements)
         # print(clustered_texts)
         summary = []
-        for each_cluster in clustered_texts:
-            joined_texts = '. '.join(each_cluster)
-            print(joined_texts)
-            summary.append(model.summarizeText(joined_texts))
+        # for each_cluster in clustered_texts:
+        #     joined_texts = '. '.join(each_cluster)
+        #     print(joined_texts)
+        #     summary.append(model.summarizeText(joined_texts))
+        summary.append(model.summarizeText(statements))
         return {"summary": summary}
 
     def answer_questions(self, questions, context, qa_model_name, username):
@@ -293,7 +300,7 @@ if __name__ == "__main__":
     #     print(video["title"])
     #     print("\t", video["videoId"])
     #     print("\t", video["description"])
-    ys = YoutubeSearch()
+    # ys = YoutubeSearch()
     # videos = ys.youtube_get_videos('Nature Videos', max_results=10)
     # videos = ys.youtube_get_videos('vgfdxfbhlkhvjfcjhjbhjm', max_results=10)
     # videoIdArray = ['viIpUaC6blY']
@@ -348,8 +355,7 @@ if __name__ == "__main__":
         # "3N4dxGzt6mM",
         # "k6o2Yv0Pi1k",
         # "_BxNQpenzNM",
-        # "QnD0Psa8qdE",
-        # "YPb3yfR2ssg",
+        "QnD0Psa8qdE",
         "YPb3yfR2ssg"
       ]
     # result = ys.summarize_youtube_comments(videoIdArray, max_results_comments = 2, max_results_replies = 20)
@@ -370,9 +376,18 @@ if __name__ == "__main__":
     # classifier = SentenceTypeDetection.getClassifier()
     # statements = []
     # questions = []
-    ys = YoutubeSearch()
+    props = {"qdrant":
+                 {"url": "http://180.188.226.161:6333",
+                  "collection_prefix" :"yt_collection_"},
+             "llama": {
+                 "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                 "llama_model": "llama3.2:1b"
+             }
+             }
+
+    ys = YoutubeSearch(props)
     # videos = ys.youtube_get_videos_by_token(token, max_results)
-    extracted_texts = ys.extract_youtube_comments(videoIdArray, max_results_comments = 10, max_results_replies = 20)
+    extracted_texts = ys.extract_youtube_comments(videoIdArray, "user123", max_results_comments = 10, max_results_replies = 20)
     print(extracted_texts)
     # x = "a"
     # comments = ys.youtube_get_comments('viIpUaC6blY', max_results = 2, statements = statements, questions = questions, classifier = classifier, max_results_replies = 20)
