@@ -2,7 +2,7 @@ import re
 
 class SentenceCleanser:
     def process_sentence(self, text):
-
+        text = self.clean_square_brackets(text)
         text = text.replace("<br>", " ")
         text = re.sub('<a.*</a>', ' ', text)
         text = text.replace("</a>", " ")
@@ -18,6 +18,21 @@ class SentenceCleanser:
         text = re.sub(' +', ' ', text)
         text = " ".join(text.split())
         return text
+
+    '''
+    Removes the square brackets from the text.
+    '''
+    def clean_square_brackets(self, text):
+        cleaned_text = ""
+        inside_bracket = False
+        for character in text:
+            if character == "[":
+                inside_bracket = True
+            if not inside_bracket:
+                cleaned_text += character
+            if character == "]":
+                inside_bracket = False
+        return cleaned_text
 
 if __name__ == "__main__":
     sentenceCleanser = SentenceCleanser()

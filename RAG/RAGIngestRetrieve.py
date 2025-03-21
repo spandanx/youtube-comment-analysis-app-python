@@ -56,9 +56,13 @@ class RAG:
             callbacks=None,
             verbose=True)
 
+        # document_prompt = PromptTemplate(
+        #     input_variables=["page_content", "video_id"],
+        #     template="Context:\ncontent:{page_content}\nsource:{video_id}",
+        # )
         document_prompt = PromptTemplate(
-            input_variables=["page_content", "video_id"],
-            template="Context:\ncontent:{page_content}\nsource:{video_id}",
+            input_variables=["page_content"],
+            template="Context:\ncontent:{page_content}",
         )
 
         combine_documents_chain = StuffDocumentsChain(
