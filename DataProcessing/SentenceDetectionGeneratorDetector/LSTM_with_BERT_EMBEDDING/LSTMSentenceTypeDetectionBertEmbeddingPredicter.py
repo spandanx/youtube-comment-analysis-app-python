@@ -32,9 +32,9 @@ source_file_name = get_caller_file_name()
 print("source_file_name", source_file_name)
 
 
-if source_file_name == "LSTMSentenceTypeDetectionBertEmbedding.py":
-    dataset_file = "..\\..\\data\\Sentence Types - Question, Command and Statement.csv"
-    model_export_path = "..\\..\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
+if source_file_name == "LSTMSentenceTypeDetectionBertEmbeddingTrainer.py":
+    dataset_file = "../../../data/Sentence Types - Question, Command and Statement.csv"
+    model_export_path = "../../../Model/LSTM_BERT_Embedding/lstm_model_768_pre_padding.h5"
 elif source_file_name == "YoutubeSearch.py":
     dataset_file = ".\\data\\Sentence Types - Question, Command and Statement.csv"
     model_export_path = ".\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
@@ -42,13 +42,13 @@ elif source_file_name == "main.py":
     dataset_file = ".\\data\\Sentence Types - Question, Command and Statement.csv"
     model_export_path = ".\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
 else:
-    dataset_file = "..\\..\\data\\Sentence Types - Question, Command and Statement.csv"
-    model_export_path = "..\\..\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
+    dataset_file = "../../../data/Sentence Types - Question, Command and Statement.csv"
+    model_export_path = "../../../Model/LSTM_BERT_Embedding/lstm_model_768_pre_padding.h5"
 
 # dataset_file = "C:\\Users\\Spandan\\Downloads\\Compressed\\Sentence Types - Question, Command and Statement\\Sentence Types - Question, Command and Statement.csv"
 # model_export_path = "D:\PROJECTS\TensorFlow Model Exports\LSTM Simple Question Detection\\lstm_model_768_pre_padding.h5"
 
-class LSTMSentenceTypeDetectionBertEmbedding:
+class LSTMSentenceTypeDetectionBertEmbeddingPredicter:
 
     def __init__(self):
         self.lr = 2e-4
@@ -62,6 +62,7 @@ class LSTMSentenceTypeDetectionBertEmbedding:
         self.dataset_file = dataset_file
         self.model_export_path = model_export_path
         self.tokenizer = AutoTokenizer.from_pretrained(self.embedding_model_path)
+        self.lstm_model = self.load_model()
 
 
     def preprocess_function(self, examples):
@@ -137,14 +138,13 @@ class LSTMSentenceTypeDetectionBertEmbedding:
     def predict_sentence(self, sentence_array):
         df = pd.DataFrame(sentence_array, columns = ["text"])
         padded_data = self.tokenize_and_pad_dataframe_prediction(df["text"])
-        loaded_model = self.load_model()
-        pred = loaded_model.predict(padded_data)
+        pred = self.lstm_model.predict(padded_data)
         sentence_type_response = [0 if score <= 0.5 else 1 for score in pred]
         return sentence_type_response
 
 
 if __name__ == "__main__":
-    lstm = LSTMSentenceTypeDetectionBertEmbedding()
+    lstm = LSTMSentenceTypeDetectionBertEmbeddingPredicter()
     ############ Training ###########
     # dataset = lstm.load_dataset()
     # train_data, target_data = lstm.tokenize_and_pad_train_target_data(dataset)
