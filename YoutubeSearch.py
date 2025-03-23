@@ -4,6 +4,8 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from DataProcessing.Clustering.KMeansClustering import KMeansClusterer
 from DataProcessing.QuestionAnswering.DistilbertQuestionAnswering import DistilbertQuestionAnswering
 from DataProcessing.SentenceCleanser import SentenceCleanser
+from DataProcessing.SentenceDetectionGeneratorDetector.LSTM_with_BERT_EMBEDDING.LSTMSentenceTypeDetectionBertEmbeddingPredicter import \
+    LSTMSentenceTypeDetectionBertEmbeddingPredicter
 # from DataProcessing.TextSummarization.Abstractive.BARTAbstractiveSummarizer import BARTAbstractiveSummarizer
 # from DataProcessing.TextSummarization.Abstractive.T5SmallSummarizer import T5SmallSummarizer
 from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import SumyLexRankSummarizer
@@ -40,7 +42,8 @@ class YoutubeSearch:
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
         # self.text_summarizer = TextSummarization.TextSummarizer()
-        self.lstm_load = SentenceTypeDetectorPOS()
+        # self.lstm_load = SentenceTypeDetectorPOS()
+        self.lstm_model_bert = LSTMSentenceTypeDetectionBertEmbeddingPredicter()
         self.summarizer_model_map = self.initialize_summarizer_models()
         self.ques_ans_model_map = self.initialize_question_answering_models()
         self.kmeansClusterer = KMeansClusterer()
@@ -260,17 +263,16 @@ class YoutubeSearch:
 
                 if (len(cleaned_sentence) > 1 and len(cleaned_sentence.split(' ')) > 2):
                     time_comment_detection_start = time()  # time
-                    sentence_type = self.lstm_load.predict_sentence_array(
-                        [cleaned_sentence])  # Detects if the comment is a question or a general sentence
+                    # sentence_type = self.lstm_load.predict_sentence_array([cleaned_sentence])  # Detects if the comment is a question or a general sentence
                     print("Time taken to detect comment", video_id, item['id'], time() - time_comment_detection_start)  # time
                     print("Time taken to cleanse and detect comment", video_id, item['id'], time() - time_comment_clean_start)  # time
 
-                    item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
-                    item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
-                    if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] == 'statement'):
-                        statements.append(cleaned_sentence)
-                    elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] == 'question'):
-                        questions.append(cleaned_sentence)
+                    # item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
+                    # item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
+                    # if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] == 'statement'):
+                    #     statements.append(cleaned_sentence)
+                    # elif (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] == 'question'):
+                    #     questions.append(cleaned_sentence)
 
                     comment_and_replies += " " + cleaned_sentence
 
@@ -350,7 +352,7 @@ class YoutubeSearch:
     max_results should be multiple of 10
     '''
     def get_comment_replies(self, service, comment_id, video_id, statements, questions, classifier, max_results_replies, texts):
-        default_size = 10
+        default_size = 30 #Pagination
         request = service.comments().list(
             parentId = comment_id,
             part = 'id,snippet',
@@ -376,7 +378,7 @@ class YoutubeSearch:
             reply_text = list(filter(None, [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts])) #remove any special characters and remove any empty string
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
             # sentence_type_list = self.lstm_load.predict_sentence_array(reply_text)
-            sentence_type_list = [self.lstm_load.predict_sentence_array([reply_tx]) for reply_tx in reply_text] #Translate the sentences to english
+            sentence_type_list = []#[self.lstm_load.predict_sentence_array([reply_tx]) for reply_tx in reply_text] #Translate the sentences to english
             # for sent in sentence_type_list:
             for reply, each_reply_text, sentence_type in zip(reply_list, reply_text, sentence_type_list):
                 reply["snippet"]["sentenceType"] = sentence_type[0]['type']
@@ -429,13 +431,24 @@ class YoutubeSearch:
             # texts.extend(self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
             #                                classifier=classifier, max_results_replies=max_results_replies))
             print("Total time taken to process video = ", videoId, time() - processing_each_video_time_start)  # time
+        pred_array = self.lstm_model_bert.predict_sentence(all_sentences)
+        questions = []
+        statements = []
+        for pred, sentence in zip(pred_array, all_sentences):
+            if pred:
+                questions.append(sentence)
+            else:
+                statements.append(sentence)
+        print(pred_array)
         print("Total time taken = ", time() - processing_time_start)  # time
         print("TEXTS")
         print(texts)
         print("ALL Sentences")
         print(all_sentences)
+
+
         collection_name = self.props["qdrant"]["collection_prefix"] + username
-        # self.rag.ingest_vector(texts, collection_name)
+        self.rag.ingest_vector(texts, collection_name)
         return {"statements": statements, "questions": questions, "texts": [txt["text"] for txt in texts]}
 
     def summarize_comments(self, statements, summarizer_model_name):

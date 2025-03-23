@@ -39,11 +39,13 @@ elif source_file_name == "YoutubeSearch.py":
     dataset_file = ".\\data\\Sentence Types - Question, Command and Statement.csv"
     model_export_path = ".\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
 elif source_file_name == "main.py":
+    # print("main.py")
     dataset_file = ".\\data\\Sentence Types - Question, Command and Statement.csv"
     model_export_path = ".\\Model\\LSTM_BERT_Embedding\\lstm_model_768_pre_padding.h5"
 else:
-    dataset_file = "../../../data/Sentence Types - Question, Command and Statement.csv"
-    model_export_path = "../../../Model/LSTM_BERT_Embedding/lstm_model_768_pre_padding.h5"
+    # print("ELSE")
+    dataset_file = "./data/Sentence Types - Question, Command and Statement.csv"
+    model_export_path = "./Model/LSTM_BERT_Embedding/lstm_model_768_pre_padding.h5"
 
 # dataset_file = "C:\\Users\\Spandan\\Downloads\\Compressed\\Sentence Types - Question, Command and Statement\\Sentence Types - Question, Command and Statement.csv"
 # model_export_path = "D:\PROJECTS\TensorFlow Model Exports\LSTM Simple Question Detection\\lstm_model_768_pre_padding.h5"
