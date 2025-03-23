@@ -56,7 +56,7 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
+from research import SentenceTypeDetection
 
 ys = YoutubeSearch(props)
 

@@ -10,7 +10,7 @@ from DataProcessing.TextSummarization.Extractive.SumyLexRankSummarizer import Su
 from DataProcessing.LanguageDetectorMain.LanguageDetectorMain import LanguageDetectorMain
 from Security.OAuth2Security import get_settings
 # from Security.OAuth2Security import OAuth2Security
-from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
+from research import SentenceTypeDetection
 from DataProcessing import WrapText
 from DataProcessing.SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
 

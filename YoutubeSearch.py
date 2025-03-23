@@ -11,10 +11,11 @@ from DataProcessing.LanguageDetectorMain.LanguageDetectorMain import LanguageDet
 from RAG.RAGIngestRetrieve import RAG
 from Security.OAuth2Security import get_settings
 # from Security.OAuth2Security import OAuth2Security
-from DataProcessing.SentenceDetectionGeneratorDetector import SentenceTypeDetection
+from research import SentenceTypeDetection
 from DataProcessing import WrapText
 from DataProcessing.SentenceDetectionGeneratorDetector.SentenceTypeDetectorPOS import SentenceTypeDetectorPOS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from time import time
 
 import nltk
 nltk.download('averaged_perceptron_tagger_eng')
@@ -220,7 +221,7 @@ class YoutubeSearch:
         Extracts out youtube comments, description and possible question and answer for a given video ID.
         '''
 
-    def youtube_get_comments_user_reply_mode(self, video_id, max_results, statements, questions, classifier, max_results_replies):
+    def youtube_get_comments_user_reply_mode(self, video_id, max_results, statements, questions, classifier, max_results_replies, all_sentences):
 
         # comments = []
         texts = []
@@ -249,14 +250,21 @@ class YoutubeSearch:
             filtered_sentence = self.sentence_cleanser.process_sentence(sentence)
             comment_and_replies = " "
             if (len(filtered_sentence.split(' ')) > 1):
+                time_comment_clean_start = time() #time
                 translated_sentence = self.language_processing_model.convert_language_of_text(
                     filtered_sentence)  # Translate the description to english
                 cleaned_sentence = self.sentence_cleanser.remove_special_chars(
                     translated_sentence)  # Remove any special characters in the comments
                 # print(len(cleaned_sentence.split(' ')))
+                print("Time taken to cleanse comment", video_id, item['id'], time() - time_comment_clean_start) #time
+
                 if (len(cleaned_sentence) > 1 and len(cleaned_sentence.split(' ')) > 2):
+                    time_comment_detection_start = time()  # time
                     sentence_type = self.lstm_load.predict_sentence_array(
                         [cleaned_sentence])  # Detects if the comment is a question or a general sentence
+                    print("Time taken to detect comment", video_id, item['id'], time() - time_comment_detection_start)  # time
+                    print("Time taken to cleanse and detect comment", video_id, item['id'], time() - time_comment_clean_start)  # time
+
                     item["snippet"]["topLevelComment"]["snippet"]["processedComments"] = cleaned_sentence
                     item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] = sentence_type[0]['type']
                     if (item["snippet"]["topLevelComment"]["snippet"]["sentenceType"] == 'statement'):
@@ -268,27 +276,32 @@ class YoutubeSearch:
 
                     # texts.append({"text": cleaned_sentence, "metadata": {"video_id": video_id, "comment_id": item['id'],
                     #                                                      "reply_id": "", "type": "comment"}})
+            time_reply_processing_start = time() #time
 
             reply_count = item['snippet']['totalReplyCount']
             replies = item.get('replies')
             print("Video ID", item['id'], " Reply Count", reply_count)
             if replies is not None and reply_count != len(replies['comments']):
-                # Extract replies of the comment
+                # Extract replies of the comment#time
                 replies['comments'] = self.get_comment_replies(self.youtube_object, item['id'], video_id, statements,
-                                                               questions, classifier, min(reply_count, 20), texts)
+                                                               questions, classifier, min(reply_count, max_results_replies), texts)
                 comment_and_replies += " " + " ".join(replies['comments'])
 
-            chunks = self.split_text_into_chunks(comment_and_replies)
-            texts.extend([{"text": chunk, "metadata": {"video_id": video_id, "comment_id": item['id'], "reply_id": "", "type": "comments and replies"}} for chunk in chunks])
+            comment_and_replies = comment_and_replies.strip()
+            if comment_and_replies:
+                chunks = self.split_text_into_chunks(comment_and_replies)
+                texts.extend([{"text": chunk, "metadata": {"video_id": video_id, "comment_id": item['id'], "reply_id": "", "type": "comments and replies"}} for chunk in chunks])
+                all_sentences.append(transcripts + " " + comment_and_replies)
             x = 1
-
+            print("Comment Processing time", video_id, item['id'], time() - time_reply_processing_start)
         # print("texts:\n", "\n".join(texts), "\n")
         print("Questions:\n", "\n".join(questions), "\n")
         return texts
 
+
     '''
-        max_results should be multiple of 10
-        '''
+    max_results should be multiple of 10
+    '''
 
     def get_comment_replies_user_reply_mode(self, service, comment_id, video_id, statements, questions, classifier, max_results_replies,
                             texts):
@@ -355,7 +368,10 @@ class YoutubeSearch:
             # cleaned_sentence = self.sentence_cleanser.remove_special_chars(translated_sentence)
             # sentence_type = SentenceTypeDetection.sentenceDetectionModel([cleaned_sentence], classifier)
             # len(filtered_sentence.split(' ')) > 1
-            filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']]) # Get the texts of the replies
+            # filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 1, [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply in response['items']]) # Get the texts of the replies
+            filtered_texts = filter(lambda filtered_sentence: len(filtered_sentence.split(' ')) > 3,
+                                    [self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"]) for reply
+                                     in response['items']])  # Get the texts of the replies
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.detect_language_of_text((self.sentence_cleanser.process_sentence(reply["snippet"]["textDisplay"])))) for reply in response['items']]
             reply_text = list(filter(None, [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts])) #remove any special characters and remove any empty string
             # reply_text = [self.sentence_cleanser.remove_special_chars(self.language_processing_model.convert_language_of_text(reply)) for reply in filtered_texts]
@@ -393,6 +409,7 @@ class YoutubeSearch:
         transcript = api.get_transcript(video_id, languages=languages)
         return transcript
 
+
     '''
     Extracts out youtube comments, description and possible question and answers for a give video ID array.
     '''
@@ -401,17 +418,24 @@ class YoutubeSearch:
         statements = []
         questions = []
         texts = []
+        all_sentences = []
+        processing_time_start = time()  # time
         for videoId in videoIdArray:
             print("Processed video - ", videoId)
+            processing_each_video_time_start = time()  # time
             texts.extend(self.youtube_get_comments_user_reply_mode(videoId, max_results=max_results_comments, statements=statements,
                                                    questions=questions,
-                                                   classifier=classifier, max_results_replies=max_results_replies))
+                                                   classifier=classifier, max_results_replies=max_results_replies, all_sentences = all_sentences))
             # texts.extend(self.youtube_get_comments(videoId, max_results=max_results_comments, statements=statements, questions=questions,
             #                                classifier=classifier, max_results_replies=max_results_replies))
+            print("Total time taken to process video = ", videoId, time() - processing_each_video_time_start)  # time
+        print("Total time taken = ", time() - processing_time_start)  # time
         print("TEXTS")
         print(texts)
+        print("ALL Sentences")
+        print(all_sentences)
         collection_name = self.props["qdrant"]["collection_prefix"] + username
-        self.rag.ingest_vector(texts, collection_name)
+        # self.rag.ingest_vector(texts, collection_name)
         return {"statements": statements, "questions": questions, "texts": [txt["text"] for txt in texts]}
 
     def summarize_comments(self, statements, summarizer_model_name):

@@ -34,5 +34,7 @@ langchain-qdrant
 langchain_ollama
 langchain
 langchain-community
+evaluate
+datasets
 
 -e .
