@@ -10,21 +10,22 @@ from langchain_ollama import OllamaLLM
 
 
 class RAG:
-    def __init__(self, qdrant_url, embedding_model, llama_model):
+    def __init__(self, qdrant_url, embedding_model, llama_model, qdrant_api_key):
         self.qdrant_url = qdrant_url
         self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model,
                                            model_kwargs={'device': 'cpu'})
         self.llm = OllamaLLM(model=llama_model)
+        self.qdrant_api_key = qdrant_api_key
 
     def ingest_vector(self, text_array, collection_name):
-
+        # Convert the text to Document, use can store the metadata of the doc
         doc_array = [Document(page_content=txt["text"], metadata=txt["metadata"]) for txt in text_array]
-        # embedding choice here is all-MiniLM-L6-v2, based on your hardware you can choose smaller size one or bigger size one.
 
         qdrant = Qdrant.from_documents(
             doc_array,
             self.embeddings,
             url=self.qdrant_url,
+            api_key=self.qdrant_api_key,
             collection_name=collection_name,
             force_recreate=True
         )
@@ -33,7 +34,7 @@ class RAG:
     def answer_question(self, question, context, collection_name):
         print("Called RAG Q&A", question, collection_name)
         qDrant_vector = QdrantVectorStore.from_existing_collection(collection_name=collection_name, url=self.qdrant_url,
-                                                                   embedding=self.embeddings)
+                                                                   embedding=self.embeddings, api_key=self.qdrant_api_key)
         retriever = qDrant_vector.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 
@@ -60,9 +61,13 @@ class RAG:
         #     input_variables=["page_content", "video_id"],
         #     template="Context:\ncontent:{page_content}\nsource:{video_id}",
         # )
+        # document_prompt = PromptTemplate(
+        #     input_variables=["page_content"],
+        #     template="Context:\ncontent:{page_content}",
+        # )
         document_prompt = PromptTemplate(
             input_variables=["page_content"],
-            template="Context:\ncontent:{page_content}",
+            template="Content:{page_content}",
         )
 
         combine_documents_chain = StuffDocumentsChain(
@@ -84,9 +89,6 @@ class RAG:
 
     def summarizeText(self, context):
 
-        # template = """Summarize the context below in 1,2 sentences
-        #             Context: {context}
-        #             """
         template = """
         1. Create a summary of the context provided below in 3,4 sentences.
         2. If you cannot summarize, just say that "Cannot summarize the statements!" but don't make up an answer on your own.\n

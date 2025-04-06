@@ -28,17 +28,12 @@ nltk.download('stopwords')
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-
-# class OAuth2Security:
-#     pass
-
-
 class YoutubeSearch:
 
     def __init__(self, props):
         self.props = props
         self.rag = RAG(qdrant_url=props["qdrant"]["url"], embedding_model=props["llama"]["embedding_model"],
-                       llama_model=props["llama"]["llama_model"])
+                       llama_model=props["llama"]["llama_model"], qdrant_api_key=get_settings().QDRANT_API_KEY)
         self.language_processing_model = LanguageDetectorMain()
         self.sentence_cleanser = SentenceCleanser()
         # self.text_summarizer = TextSummarization.TextSummarizer()
