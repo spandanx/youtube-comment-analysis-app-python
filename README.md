@@ -5,6 +5,7 @@ This a web application that can combine multiple youtube content and give a summ
 ## Features
  - Get Summary of youtube comments and description
  - Get possible question and answers
+ - Get answer of custom questions with RAG (Retrieval-Augmented Generation)
  - Login with Oauth authentication
 
 ## Application Snap Shots
@@ -85,5 +86,5 @@ The environment file should contain the youtube api key, the text encoding etc.
 
 
 ## Youtube link
-
+https://youtu.be/k4J4ZZeXFOg
 
